@@ -46,7 +46,7 @@ final class BetRecord {
     }
 }
 
-enum TicketType: String, CaseIterable, Codable, Identifiable {
+enum TicketType: String, CaseIterable, Codable, Identifiable, Hashable {
     case win = "単勝"
     case place = "複勝"
     case quinella = "馬連"
@@ -55,7 +55,7 @@ enum TicketType: String, CaseIterable, Codable, Identifiable {
     var id: String { rawValue }
 }
 
-enum PopularityBand: String, CaseIterable, Codable, Identifiable {
+enum PopularityBand: String, CaseIterable, Codable, Identifiable, Hashable {
     case favorite = "1〜3番人気"
     case mid = "中穴"
     case darkHorse = "穴"
@@ -63,7 +63,7 @@ enum PopularityBand: String, CaseIterable, Codable, Identifiable {
     var id: String { rawValue }
 }
 
-enum RaceGrade: String, CaseIterable, Codable, Identifiable {
+enum RaceGrade: String, CaseIterable, Codable, Identifiable, Hashable {
     case g1 = "G1"
     case graded = "重賞"
     case flat = "平場"
@@ -71,7 +71,7 @@ enum RaceGrade: String, CaseIterable, Codable, Identifiable {
     var id: String { rawValue }
 }
 
-enum TimeSlot: String, CaseIterable, Codable, Identifiable {
+enum TimeSlot: String, CaseIterable, Codable, Identifiable, Hashable {
     case morning = "午前"
     case afternoon = "午後"
 

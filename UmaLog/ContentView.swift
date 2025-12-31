@@ -264,7 +264,7 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func pickerRow<Option: Identifiable & RawRepresentable>(
+    private func pickerRow<Option: Identifiable & RawRepresentable & Hashable>(
         title: String,
         selection: Binding<Option>,
         options: [Option]
