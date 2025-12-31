@@ -19,6 +19,10 @@ struct ContentView: View {
     @State private var investmentText: String = ""
     @State private var payoutText: String = ""
 
+    private var cardBackground: Color {
+        Color(.secondarySystemBackground)
+    }
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
@@ -109,7 +113,7 @@ struct ContentView: View {
                         .foregroundStyle(.secondary)
                 }
                 .padding()
-                .background(.white.opacity(0.92), in: RoundedRectangle(cornerRadius: 16))
+                .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
             } else {
                 placeholderCard(text: "まだ記録がありません。まずは1レース、30秒で記録してみましょう。")
             }
@@ -138,7 +142,7 @@ struct ContentView: View {
                 .opacity(isValidInput ? 1 : 0.6)
             }
             .padding()
-            .background(.white.opacity(0.95), in: RoundedRectangle(cornerRadius: 16))
+            .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
         }
     }
 
@@ -195,7 +199,7 @@ struct ContentView: View {
                             }
                         }
                         .padding()
-                        .background(.white.opacity(0.95), in: RoundedRectangle(cornerRadius: 14))
+                        .background(cardBackground, in: RoundedRectangle(cornerRadius: 14))
                     }
                 }
             }
@@ -306,7 +310,7 @@ struct ContentView: View {
             .foregroundStyle(.secondary)
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.white.opacity(0.85), in: RoundedRectangle(cornerRadius: 16))
+            .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private var returnRateText: String {
