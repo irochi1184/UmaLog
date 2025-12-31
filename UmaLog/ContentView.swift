@@ -206,16 +206,22 @@ struct ContentView: View {
     private var worstPattern: LossPattern? {
         guard !records.isEmpty else { return nil }
 
-        let grouped = Dictionary(grouping: records) { ($0.timeSlot, $0.popularityBand) }
+        let grouped = Dictionary(grouping: records) {
+            LossPatternKey(
+                timeSlot: $0.timeSlot,
+                popularityBand: $0.popularityBand
+            )
+        }
 
         let patterns: [LossPattern] = grouped.compactMap { key, values in
             let invest = values.reduce(0) { $0 + $1.investment }
             let payout = values.reduce(0) { $0 + $1.payout }
             let loss = invest - payout
             guard loss > 0 else { return nil }
+            
             let returnRate = invest > 0 ? (payout / invest) * 100 : 0
-
-            let message = "\(key.0.rawValue) × \(key.1.rawValue) が最も負けています"
+            let message = "\(key.timeSlot.rawValue) × \(key.popularityBand.rawValue) が最も負けています"
+            
             return LossPattern(
                 message: message,
                 loss: loss,
@@ -344,6 +350,11 @@ private struct LossPattern {
 #Preview {
     ContentView()
         .modelContainer(previewContainer)
+}
+
+struct LossPatternKey: Hashable {
+    let timeSlot: TimeSlot
+    let popularityBand: PopularityBand
 }
 
 let previewContainer: ModelContainer = {
