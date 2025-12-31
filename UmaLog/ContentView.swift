@@ -16,6 +16,10 @@ struct ContentView: View {
     @State private var popularityBand: PopularityBand = .favorite
     @State private var raceGrade: RaceGrade = .flat
     @State private var timeSlot: TimeSlot = .afternoon
+    @State private var selectedDate: Date = .now
+    @State private var displayedMonth: Date = Calendar.current.date(
+        from: Calendar.current.dateComponents([.year, .month], from: Date())
+    ) ?? Date()
     @State private var investmentText: String = ""
     @State private var payoutText: String = ""
 
@@ -23,29 +27,60 @@ struct ContentView: View {
         Color(.secondarySystemBackground)
     }
 
-    var body: some View {
-        NavigationStack {
-            ZStack(alignment: .top) {
-                LinearGradient(
-                    colors: [Color("MainGreen", bundle: .main).opacity(0.9), Color("MainGreen", bundle: .main).opacity(0.6)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+    private let calendar = Calendar.current
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        header
-                        summarySection
-                        analysisSection
-                        recordForm
-                        historySection
+    var body: some View {
+        TabView {
+            NavigationStack {
+                ZStack(alignment: .top) {
+                    LinearGradient(
+                        colors: [Color("MainGreen", bundle: .main).opacity(0.9), Color("MainGreen", bundle: .main).opacity(0.6)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .ignoresSafeArea()
+
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            header
+                            summarySection
+                            analysisSection
+                            recordForm
+                            historySection
+                        }
+                        .padding()
                     }
-                    .padding()
                 }
+                .navigationTitle("うまログ")
+                .navigationBarTitleDisplayMode(.inline)
             }
-            .navigationTitle("うまログ")
-            .navigationBarTitleDisplayMode(.inline)
+            .tabItem {
+                Label("記録", systemImage: "square.and.pencil")
+            }
+
+            NavigationStack {
+                ZStack(alignment: .top) {
+                    LinearGradient(
+                        colors: [Color("MainGreen", bundle: .main).opacity(0.9), Color("MainGreen", bundle: .main).opacity(0.6)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .ignoresSafeArea()
+
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            calendarHeader
+                            calendarSection
+                        }
+                        .padding()
+                    }
+                }
+                .navigationTitle("カレンダー")
+                .navigationBarTitleDisplayMode(.inline)
+            }
+            .tabItem {
+                Label("カレンダー", systemImage: "calendar")
+            }
         }
     }
 
@@ -97,6 +132,71 @@ struct ContentView: View {
         }
     }
 
+    private var calendarHeader: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("日ごとの浮き沈みを色でひと目に")
+                .font(.title2.bold())
+                .foregroundStyle(.white)
+            Text("記録した日付をカレンダーで振り返り。プラスの日は緑、マイナスの日は赤で表示します。")
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.9))
+        }
+    }
+
+    private var calendarSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("カレンダーで収支を確認")
+                .font(.headline)
+                .foregroundStyle(.white)
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Button {
+                        changeMonth(by: -1)
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .padding(8)
+                            .background(Color(.systemGray5), in: Circle())
+                    }
+
+                    Spacer()
+
+                    Text(currentMonthTitle)
+                        .font(.title3.weight(.semibold))
+
+                    Spacer()
+
+                    Button {
+                        changeMonth(by: 1)
+                    } label: {
+                        Image(systemName: "chevron.right")
+                            .padding(8)
+                            .background(Color(.systemGray5), in: Circle())
+                    }
+                }
+
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 10) {
+                    ForEach(["日", "月", "火", "水", "木", "金", "土"], id: \.self) { weekday in
+                        Text(weekday)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity)
+                    }
+
+                    ForEach(calendarDays.indices, id: \.self) { index in
+                        if let date = calendarDays[index] {
+                            calendarCell(for: date)
+                        } else {
+                            Color.clear.frame(height: 56)
+                        }
+                    }
+                }
+            }
+            .padding()
+            .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
+        }
+    }
+
     private var analysisSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("今日の気づき")
@@ -127,6 +227,7 @@ struct ContentView: View {
                 .foregroundStyle(.white)
 
             VStack(spacing: 12) {
+                dateField
                 formPickers
                 formAmounts
                 Button(action: addRecord) {
@@ -244,6 +345,7 @@ struct ContentView: View {
         else { return }
 
         let record = BetRecord(
+            createdAt: calendar.startOfDay(for: selectedDate),
             ticketType: ticketType,
             popularityBand: popularityBand,
             raceGrade: raceGrade,
@@ -270,6 +372,20 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
             Text(value)
                 .font(.title3.weight(.semibold))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var dateField: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("日付")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            DatePicker("日付", selection: $selectedDate, displayedComponents: .date)
+                .datePickerStyle(.compact)
+                .onChange(of: selectedDate) { newValue in
+                    displayedMonth = newValue
+                }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -337,6 +453,113 @@ struct ContentView: View {
         formatter.currencyCode = "JPY"
         formatter.maximumFractionDigits = 0
         return formatter.string(from: NSNumber(value: value)) ?? "¥0"
+    }
+
+    private var currentMonthTitle: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ja_JP")
+        formatter.dateFormat = "y年M月"
+        return formatter.string(from: displayedMonth)
+    }
+
+    private var calendarDays: [Date?] {
+        let dates = datesInMonth(for: displayedMonth)
+        let offset = weekdayOffset(for: displayedMonth)
+        return Array(repeating: nil, count: offset) + dates
+    }
+
+    private func datesInMonth(for date: Date) -> [Date] {
+        guard let interval = calendar.dateInterval(of: .month, for: date) else { return [] }
+        var dates: [Date] = []
+        var current = interval.start
+
+        while current < interval.end {
+            dates.append(current)
+            guard let next = calendar.date(byAdding: .day, value: 1, to: current) else { break }
+            current = next
+        }
+        return dates
+    }
+
+    private func weekdayOffset(for date: Date) -> Int {
+        guard let start = calendar.dateInterval(of: .month, for: date)?.start else { return 0 }
+        let weekday = calendar.component(.weekday, from: start)
+        let firstWeekday = calendar.firstWeekday
+        return (weekday - firstWeekday + 7) % 7
+    }
+
+    private func changeMonth(by value: Int) {
+        let baseMonth = startOfMonth(for: displayedMonth)
+
+        if let next = calendar.date(byAdding: .month, value: value, to: baseMonth) {
+            let normalized = startOfMonth(for: next)
+            displayedMonth = normalized
+
+            let day = calendar.component(.day, from: selectedDate)
+            let maxDay = calendar.range(of: .day, in: .month, for: normalized)?.count ?? day
+            let clampedDay = min(day, maxDay)
+
+            if let alignedDate = calendar.date(
+                bySetting: .day,
+                value: clampedDay,
+                of: normalized
+            ) {
+                selectedDate = alignedDate
+            } else {
+                selectedDate = normalized
+            }
+        }
+    }
+
+    private func startOfMonth(for date: Date) -> Date {
+        calendar.date(from: calendar.dateComponents([.year, .month], from: date)) ?? date
+    }
+
+    private func calendarCell(for date: Date) -> some View {
+        let net = dailyNetTotals[calendar.startOfDay(for: date)]
+        let isToday = calendar.isDateInToday(date)
+        let background: Color
+
+        if let net {
+            background = net > 0 ? Color.green.opacity(0.15) : (net < 0 ? Color.red.opacity(0.15) : Color.gray.opacity(0.12))
+        } else {
+            background = Color(.systemGray6)
+        }
+
+        return VStack(alignment: .leading, spacing: 6) {
+            Text("\(calendar.component(.day, from: date))")
+                .font(.headline)
+
+            if let net {
+                let absNet = abs(net)
+                Text(currency(absNet))
+                    .font(.caption2.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(net >= 0 ? Color.green : Color.red)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            } else {
+                Text("—")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
+        .padding(8)
+        .background(background, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.accentColor, lineWidth: isToday ? 2 : 0)
+        )
+    }
+
+    private var dailyNetTotals: [Date: Double] {
+        Dictionary(grouping: records) { record in
+            calendar.startOfDay(for: record.createdAt)
+        }
+        .mapValues { dailyRecords in
+            dailyRecords.reduce(0) { $0 + $1.netProfit }
+        }
     }
 }
 
