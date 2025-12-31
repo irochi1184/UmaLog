@@ -517,6 +517,7 @@ struct ContentView: View {
 
     private func calendarCell(for date: Date) -> some View {
         let net = dailyNetTotals[calendar.startOfDay(for: date)]
+        let isToday = calendar.isDateInToday(date)
         let background: Color
 
         if let net {
@@ -530,10 +531,13 @@ struct ContentView: View {
                 .font(.headline)
 
             if let net {
-                Text(currency(net))
-                    .font(.caption)
+                let absNet = abs(net)
+                Text(currency(absNet))
+                    .font(.caption2.weight(.semibold))
+                    .monospacedDigit()
                     .foregroundStyle(net >= 0 ? Color.green : Color.red)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.6)
             } else {
                 Text("—")
                     .font(.caption)
@@ -543,6 +547,10 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
         .padding(8)
         .background(background, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.accentColor, lineWidth: isToday ? 2 : 0)
+        )
     }
 
     private var dailyNetTotals: [Date: Double] {
