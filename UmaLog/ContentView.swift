@@ -63,6 +63,8 @@ struct ContentView: View {
         return formatter
     }
 
+    private let datePickerLocale = Locale(identifier: "ja_JP")
+
     var body: some View {
         TabView {
             NavigationStack {
@@ -310,7 +312,7 @@ struct ContentView: View {
                             .foregroundStyle(.secondary)
                         DatePicker("日付", selection: $editingDate, displayedComponents: .date)
                             .datePickerStyle(.compact)
-                            .environment(\.locale, .autoupdatingCurrent)
+                            .environment(\.locale, datePickerLocale)
                             .onChange(of: editingDate) { _, newValue in
                                 displayedMonth = newValue
                             }
@@ -539,7 +541,7 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
             DatePicker("日付", selection: $selectedDate, displayedComponents: .date)
                 .datePickerStyle(.compact)
-                .environment(\.locale, .autoupdatingCurrent)
+                .environment(\.locale, datePickerLocale)
                 .onChange(of: selectedDate) { _, newValue in
                     displayedMonth = newValue
                 }
