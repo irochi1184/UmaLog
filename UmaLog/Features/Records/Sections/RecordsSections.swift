@@ -721,15 +721,15 @@ private struct MarkCardHorseNumberSelector: View {
                 .foregroundStyle(.secondary)
 
             VStack(alignment: .leading, spacing: 6) {
-                rowView(numbers: firstRow)
+                rowView(numbers: firstRow, rowTag: 0)
                 if shouldShowSecondRow {
-                    rowView(numbers: secondRow)
+                    rowView(numbers: secondRow, rowTag: 1)
                 }
             }
         }
     }
 
-    private func rowView(numbers: [Int]) -> some View {
+    private func rowView(numbers: [Int], rowTag: Int) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
                 ForEach(numbers, id: \.self) { number in
@@ -742,10 +742,10 @@ private struct MarkCardHorseNumberSelector: View {
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .padding(.vertical, 5)
                                 .padding(.horizontal, 4)
-                            if let order = orderIndex(for: number) {
+                            if let order = orderIndex(for: number, rowTag: rowTag) {
                                 Text("\(order)")
-                                    .font(.system(size: 8, weight: .bold, design: .rounded))
-                                    .padding(4)
+                                    .font(.system(size: 7, weight: .bold, design: .rounded))
+                                    .padding(2)
                                     .background(Color.white.opacity(0.9))
                                     .foregroundStyle(Color("MainGreen", bundle: .main))
                                     .clipShape(Circle())
@@ -753,16 +753,16 @@ private struct MarkCardHorseNumberSelector: View {
                             }
                         }
                         .frame(width: 20, height: 46)
-                        .background(selectionContains(number) ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
-                        .foregroundStyle(selectionContains(number) ? Color.white : Color.primary)
+                        .background(isSelected(number: number, rowTag: rowTag) ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
+                        .foregroundStyle(isSelected(number: number, rowTag: rowTag) ? Color.white : Color.primary)
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(selectionContains(number) ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
+                                .stroke(isSelected(number: number, rowTag: rowTag) ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
-                    .disabled(!selectionContains(number) && selection.count >= maxSelection && !isBracket)
+                    .disabled(!isSelected(number: number, rowTag: rowTag) && selection.count >= maxSelection && !isBracket)
                 }
             }
             .padding(.vertical, 4)
@@ -780,9 +780,10 @@ private struct MarkCardHorseNumberSelector: View {
 
     private func toggle(_ number: Int) {
         if isBracket {
-            if let lastIndex = selection.lastIndex(of: number) {
-                selection.remove(at: lastIndex)
-            } else if selection.count < maxSelection {
+            if selection.count < maxSelection {
+                selection.append(number)
+            } else {
+                selection.removeFirst()
                 selection.append(number)
             }
         } else {
@@ -795,13 +796,27 @@ private struct MarkCardHorseNumberSelector: View {
         }
     }
 
-    private func selectionContains(_ number: Int) -> Bool {
-        selection.contains(number)
+    private func orderIndex(for number: Int, rowTag: Int) -> Int? {
+        guard maxSelection > 1 else { return nil }
+        let indices = selection.enumerated()
+            .filter { $0.element == number }
+            .map { $0.offset + 1 }
+        guard !indices.isEmpty else { return nil }
+        if isBracket, indices.count >= 2 {
+            return rowTag == 0 ? indices.first : (rowTag == 1 ? indices.dropFirst().first : nil)
+        }
+        return indices.first
     }
 
-    private func orderIndex(for number: Int) -> Int? {
-        guard let idx = selection.firstIndex(of: number) else { return nil }
-        return idx + 1
+    private func isSelected(number: Int, rowTag: Int) -> Bool {
+        if !isBracket {
+            return selection.contains(number)
+        }
+
+        let count = selection.filter { $0 == number }.count
+        if count == 0 { return false }
+        if count == 1 { return rowTag == 0 }
+        return rowTag < count
     }
 }
 
