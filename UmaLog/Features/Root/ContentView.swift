@@ -15,6 +15,11 @@ struct ContentView: View {
                 .tabItem {
                     Label("カレンダー", systemImage: "calendar")
                 }
+
+            SettingsTabView()
+                .tabItem {
+                    Label("設定", systemImage: "slider.horizontal.3")
+                }
         }
     }
 }
