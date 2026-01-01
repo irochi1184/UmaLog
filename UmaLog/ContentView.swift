@@ -95,7 +95,6 @@ struct ContentView: View {
                         }
                     }
                 }
-                .toolbar(.visible, for: .keyboard)
                 .sheet(isPresented: $isEditing) {
                     editSheet
                 }
@@ -352,7 +351,6 @@ struct ContentView: View {
                     }
                 }
             }
-            .toolbar(.visible, for: .keyboard)
         }
     }
 
