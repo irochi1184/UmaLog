@@ -88,11 +88,11 @@ struct ContentView: View {
                 .navigationTitle("うまログ")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        Spacer()
+                    ToolbarItem(placement: .keyboard) {
                         Button("閉じる") {
                             focusedAmountField = nil
                         }
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                     }
                 }
                 .sheet(isPresented: $isEditing) {
@@ -344,11 +344,11 @@ struct ContentView: View {
                     }
                     .disabled(!isEditingValid)
                 }
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
+                ToolbarItem(placement: .keyboard) {
                     Button("閉じる") {
                         focusedAmountField = nil
                     }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
             }
         }
