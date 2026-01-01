@@ -740,23 +740,17 @@ struct ContentView: View {
 
             if let totals {
                 VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.down.right")
-                        Text(currency(totals.investment))
-                    }
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                    Text(currency(totals.investment))
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
 
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.up.right")
-                        Text(currency(totals.payout))
-                    }
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.green)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                    Text(currency(totals.payout))
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.green)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
                 }
             } else {
                 Text("—")
