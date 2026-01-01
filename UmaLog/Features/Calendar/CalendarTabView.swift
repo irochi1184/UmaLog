@@ -146,7 +146,7 @@ struct CalendarTabView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(AmountFormatting.currency(totals.investment))
                         .font(.caption2.weight(.semibold))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.red.opacity(0.8))
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
 
