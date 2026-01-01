@@ -180,8 +180,8 @@ struct RecordFormSection: View {
 
     private var formAmounts: some View {
         HStack(spacing: 12) {
-            amountField(title: "投資額", placeholder: "例: 1200", text: $formState.investmentText, focus: .investment)
-            amountField(title: "払戻額", placeholder: "例: 800", text: $formState.payoutText, focus: .payout)
+            amountField(title: "投資額", placeholder: "例: 1200", text: $formState.investmentText, focus: .investment, focusedAmountField: $focusedAmountField)
+            amountField(title: "払戻額", placeholder: "例: 800", text: $formState.payoutText, focus: .payout, focusedAmountField: $focusedAmountField)
         }
     }
 
@@ -244,202 +244,6 @@ struct RecordFormSection: View {
 
     private var hasDetailedFields: Bool {
         showRacecourse || showRaceNumber || showHorseNumber || showJockey || showHorseName || showRaceTime || showCourseSurface || showCourseDirection || showCourseLength || showWeather || showTrackCondition || showMemo
-    }
-
-    private func pickerRow<Option: Identifiable & RawRepresentable & Hashable>(
-        title: String,
-        selection: Binding<Option>,
-        options: [Option]
-    ) -> some View where Option.RawValue == String {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Picker(title, selection: selection) {
-                ForEach(options) { option in
-                    Text(option.rawValue).tag(option)
-                }
-            }
-            .pickerStyle(.segmented)
-        }
-    }
-
-    private func numberPicker(title: String, selection: Binding<Int>, range: ClosedRange<Int>, unit: String) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Picker(title, selection: selection) {
-                ForEach(Array(range), id: \.self) { value in
-                    Text("\(value)\(unit)").tag(value)
-                }
-            }
-            .pickerStyle(.menu)
-        }
-    }
-
-    private func selectionPicker<Option: Hashable & Identifiable>(
-        title: String,
-        selection: Binding<Option>,
-        options: [Option],
-        @ViewBuilder label: @escaping (Option) -> some View
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Picker(title, selection: selection) {
-                ForEach(options) { option in
-                    label(option)
-                }
-            }
-            .pickerStyle(.menu)
-        }
-    }
-
-    private func selectionPicker(
-        title: String,
-        selection: Binding<String>,
-        options: [String],
-        @ViewBuilder label: @escaping (String) -> some View
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Picker(title, selection: selection) {
-                ForEach(options, id: \.self) { option in
-                    label(option)
-                }
-            }
-            .pickerStyle(.menu)
-        }
-    }
-
-    private func suggestionField(title: String, placeholder: String, text: Binding<String>, suggestions: [String]) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            HStack(spacing: 8) {
-                TextField(placeholder, text: text)
-                    .textFieldStyle(.roundedBorder)
-                if !suggestions.isEmpty {
-                    Menu {
-                        ForEach(suggestions, id: \.self) { item in
-                            Button(item) {
-                                text.wrappedValue = item
-                            }
-                        }
-                    } label: {
-                        Image(systemName: "text.badge.plus")
-                            .padding(8)
-                            .background(Color(.systemGray5), in: Circle())
-                    }
-                }
-            }
-        }
-    }
-
-    private func detailTextField(title: String, placeholder: String, text: Binding<String>, keyboardType: UIKeyboardType = .default) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            TextField(placeholder, text: text)
-                .textFieldStyle(.roundedBorder)
-                .keyboardType(keyboardType)
-        }
-    }
-
-    private func numberPicker(title: String, selection: Binding<Int>, range: ClosedRange<Int>, unit: String) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Picker(title, selection: selection) {
-                ForEach(Array(range), id: \.self) { value in
-                    Text("\(value)\(unit)").tag(value)
-                }
-            }
-            .pickerStyle(.menu)
-        }
-    }
-
-    private func selectionPicker<Option: Hashable & Identifiable>(
-        title: String,
-        selection: Binding<Option>,
-        options: [Option],
-        @ViewBuilder label: @escaping (Option) -> some View
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Picker(title, selection: selection) {
-                ForEach(options) { option in
-                    label(option)
-                }
-            }
-            .pickerStyle(.menu)
-        }
-    }
-
-    private func selectionPicker(
-        title: String,
-        selection: Binding<String>,
-        options: [String],
-        @ViewBuilder label: @escaping (String) -> some View
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Picker(title, selection: selection) {
-                ForEach(options, id: \.self) { option in
-                    label(option)
-                }
-            }
-            .pickerStyle(.menu)
-        }
-    }
-
-    private func suggestionField(title: String, placeholder: String, text: Binding<String>, suggestions: [String]) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            HStack(spacing: 8) {
-                TextField(placeholder, text: text)
-                    .textFieldStyle(.roundedBorder)
-                if !suggestions.isEmpty {
-                    Menu {
-                        ForEach(suggestions, id: \.self) { item in
-                            Button(item) {
-                                text.wrappedValue = item
-                            }
-                        }
-                    } label: {
-                        Image(systemName: "text.badge.plus")
-                            .padding(8)
-                            .background(Color(.systemGray5), in: Circle())
-                    }
-                }
-            }
-        }
-    }
-
-    private func amountField(title: String, placeholder: String, text: Binding<String>, focus: AmountField) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            TextField(placeholder, text: text)
-                .textFieldStyle(.roundedBorder)
-                .keyboardType(.numberPad)
-                .focused($focusedAmountField, equals: focus)
-        }
-        .frame(maxWidth: .infinity)
     }
 }
 
@@ -577,8 +381,8 @@ struct EditRecordSheet: View {
                     }
 
                     HStack(spacing: 12) {
-                        amountField(title: "投資額", placeholder: "例: 1200", text: $editState.investmentText, focus: .editInvestment)
-                        amountField(title: "払戻額", placeholder: "例: 800", text: $editState.payoutText, focus: .editPayout)
+                        amountField(title: "投資額", placeholder: "例: 1200", text: $editState.investmentText, focus: .editInvestment, focusedAmountField: $focusedAmountField)
+                        amountField(title: "払戻額", placeholder: "例: 800", text: $editState.payoutText, focus: .editPayout, focusedAmountField: $focusedAmountField)
                     }
 
                     if hasDetailedFields {
@@ -702,29 +506,131 @@ struct EditRecordSheet: View {
             || !editState.memo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    private func detailTextField(title: String, placeholder: String, text: Binding<String>, keyboardType: UIKeyboardType = .default) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            TextField(placeholder, text: text)
-                .textFieldStyle(.roundedBorder)
-                .keyboardType(keyboardType)
-        }
-    }
+}
 
-    private func amountField(title: String, placeholder: String, text: Binding<String>, focus: AmountField) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+private func pickerRow<Option: Identifiable & RawRepresentable & Hashable>(
+    title: String,
+    selection: Binding<Option>,
+    options: [Option]
+) -> some View where Option.RawValue == String {
+    VStack(alignment: .leading, spacing: 6) {
+        Text(title)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        Picker(title, selection: selection) {
+            ForEach(options) { option in
+                Text(option.rawValue).tag(option)
+            }
+        }
+        .pickerStyle(.segmented)
+    }
+}
+
+private func detailTextField(title: String, placeholder: String, text: Binding<String>, keyboardType: UIKeyboardType = .default) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+        Text(title)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        TextField(placeholder, text: text)
+            .textFieldStyle(.roundedBorder)
+            .keyboardType(keyboardType)
+    }
+}
+
+private func numberPicker(title: String, selection: Binding<Int>, range: ClosedRange<Int>, unit: String) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+        Text(title)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        Picker(title, selection: selection) {
+            ForEach(Array(range), id: \.self) { value in
+                Text("\(value)\(unit)").tag(value)
+            }
+        }
+        .pickerStyle(.menu)
+    }
+}
+
+private func selectionPicker<Option: Hashable & Identifiable>(
+    title: String,
+    selection: Binding<Option>,
+    options: [Option],
+    @ViewBuilder label: @escaping (Option) -> some View
+) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+        Text(title)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        Picker(title, selection: selection) {
+            ForEach(options) { option in
+                label(option)
+            }
+        }
+        .pickerStyle(.menu)
+    }
+}
+
+private func selectionPicker(
+    title: String,
+    selection: Binding<String>,
+    options: [String],
+    @ViewBuilder label: @escaping (String) -> some View
+) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+        Text(title)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        Picker(title, selection: selection) {
+            ForEach(options, id: \.self) { option in
+                label(option)
+            }
+        }
+        .pickerStyle(.menu)
+    }
+}
+
+private func suggestionField(title: String, placeholder: String, text: Binding<String>, suggestions: [String]) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+        Text(title)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        HStack(spacing: 8) {
             TextField(placeholder, text: text)
                 .textFieldStyle(.roundedBorder)
-                .keyboardType(.numberPad)
-                .focused($focusedAmountField, equals: focus)
+            if !suggestions.isEmpty {
+                Menu {
+                    ForEach(suggestions, id: \.self) { item in
+                        Button(item) {
+                            text.wrappedValue = item
+                        }
+                    }
+                } label: {
+                    Image(systemName: "text.badge.plus")
+                        .padding(8)
+                        .background(Color(.systemGray5), in: Circle())
+                }
+            }
         }
-        .frame(maxWidth: .infinity)
     }
+}
+
+private func amountField(
+    title: String,
+    placeholder: String,
+    text: Binding<String>,
+    focus: AmountField,
+    focusedAmountField: FocusState<AmountField?>.Binding
+) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+        Text(title)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        TextField(placeholder, text: text)
+            .textFieldStyle(.roundedBorder)
+            .keyboardType(.numberPad)
+            .focused(focusedAmountField, equals: focus)
+    }
+    .frame(maxWidth: .infinity)
 }
 
 private func placeholderCard(text: String) -> some View {
