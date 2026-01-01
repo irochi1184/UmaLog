@@ -734,7 +734,7 @@ private struct MarkCardHorseNumberSelector: View {
             HStack(spacing: 6) {
                 ForEach(numbers, id: \.self) { number in
                     Button {
-                        toggle(number)
+                        toggle(number, rowTag: rowTag)
                     } label: {
                         ZStack(alignment: .topLeading) {
                             Text("\(number)")
@@ -773,18 +773,26 @@ private struct MarkCardHorseNumberSelector: View {
     private var shouldShowSecondRow: Bool {
         guard !secondRow.isEmpty else { return false }
         if isBracket {
-            return !selection.isEmpty || maxSelection > 1
+            return !selection.isEmpty
         }
         return true
     }
 
-    private func toggle(_ number: Int) {
+    private func toggle(_ number: Int, rowTag: Int) {
         if isBracket {
-            if selection.count < maxSelection {
-                selection.append(number)
+            if rowTag == 0 {
+                if selection.isEmpty {
+                    selection = [number]
+                } else {
+                    selection[0] = number
+                }
             } else {
-                selection.removeFirst()
-                selection.append(number)
+                if selection.isEmpty { return }
+                if selection.count == 1 {
+                    selection.append(number)
+                } else {
+                    selection[1] = number
+                }
             }
         } else {
             if selection.contains(number) {
@@ -798,14 +806,17 @@ private struct MarkCardHorseNumberSelector: View {
 
     private func orderIndex(for number: Int, rowTag: Int) -> Int? {
         guard maxSelection > 1 else { return nil }
-        let indices = selection.enumerated()
-            .filter { $0.element == number }
-            .map { $0.offset + 1 }
-        guard !indices.isEmpty else { return nil }
-        if isBracket, indices.count >= 2 {
-            return rowTag == 0 ? indices.first : (rowTag == 1 ? indices.dropFirst().first : nil)
+        if isBracket {
+            if rowTag == 0, selection.indices.contains(0), selection[0] == number {
+                return 1
+            }
+            if rowTag == 1, selection.indices.contains(1), selection[1] == number {
+                return 2
+            }
+            return nil
         }
-        return indices.first
+        guard let idx = selection.firstIndex(of: number) else { return nil }
+        return idx + 1
     }
 
     private func isSelected(number: Int, rowTag: Int) -> Bool {
@@ -813,10 +824,11 @@ private struct MarkCardHorseNumberSelector: View {
             return selection.contains(number)
         }
 
-        let count = selection.filter { $0 == number }.count
-        if count == 0 { return false }
-        if count == 1 { return rowTag == 0 }
-        return rowTag < count
+        if rowTag == 0 {
+            return selection.indices.contains(0) && selection[0] == number
+        } else {
+            return selection.indices.contains(1) && selection[1] == number
+        }
     }
 }
 
