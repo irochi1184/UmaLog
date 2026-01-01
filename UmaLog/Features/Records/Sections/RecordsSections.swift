@@ -157,13 +157,9 @@ struct RecordFormSection: View {
 
     private var dateField: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("日付（自動で今日をセット）")
-                .font(.caption)
-                .foregroundStyle(.secondary)
             DatePicker("日付", selection: $formState.selectedDate, displayedComponents: .date)
                 .datePickerStyle(.compact)
                 .environment(\.locale, datePickerLocale)
-                .disabled(true)
                 .opacity(0.7)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
