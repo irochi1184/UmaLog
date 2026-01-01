@@ -261,6 +261,11 @@ struct RecordsTabView: View {
             let payout = AmountFormatting.parseAmount(formState.payoutText)
         else { return }
 
+        let horseNumberText: String? = {
+            guard !formState.horseNumbers.isEmpty else { return nil }
+            return formState.horseNumbers.map(String.init).joined(separator: "-")
+        }()
+
         let record = BetRecord(
             createdAt: calendar.startOfDay(for: formState.selectedDate),
             ticketType: formState.ticketType,
@@ -271,7 +276,7 @@ struct RecordsTabView: View {
             payout: payout,
             racecourse: optionalValue(formState.racecourse, isEnabled: showRacecourseField),
             raceNumber: optionalValue(String(formState.raceNumber), isEnabled: showRaceNumberField),
-            horseNumber: optionalValue(String(formState.horseNumber), isEnabled: showHorseNumberField),
+            horseNumber: horseNumberText,
             jockeyName: optionalValue(formState.jockeyName, isEnabled: showJockeyField),
             horseName: optionalValue(formState.horseName, isEnabled: showHorseNameField),
             raceTimeDetail: optionalValue(formState.raceTimeDetail, isEnabled: showRaceTimeField),
@@ -318,7 +323,8 @@ struct RecordsTabView: View {
             record.payout = payout
             record.racecourse = preservedValue(from: editState.racecourse.rawValue, isEnabled: showRacecourseField, original: record.racecourse)
             record.raceNumber = preservedValue(from: String(editState.raceNumber), isEnabled: showRaceNumberField, original: record.raceNumber)
-            record.horseNumber = preservedValue(from: String(editState.horseNumber), isEnabled: showHorseNumberField, original: record.horseNumber)
+            let horseNumberText = editState.horseNumbers.isEmpty ? nil : editState.horseNumbers.map(String.init).joined(separator: "-")
+            record.horseNumber = preservedValue(from: horseNumberText ?? "", isEnabled: showHorseNumberField, original: record.horseNumber)
             record.jockeyName = preservedValue(from: editState.jockeyName, isEnabled: showJockeyField, original: record.jockeyName)
             record.horseName = preservedValue(from: editState.horseName, isEnabled: showHorseNameField, original: record.horseName)
             record.raceTimeDetail = preservedValue(from: editState.raceTimeDetail, isEnabled: showRaceTimeField, original: record.raceTimeDetail)

@@ -125,6 +125,17 @@ enum TicketType: String, Codable, Identifiable, Hashable {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unknown TicketType value: \(value)")
         }
     }
+
+    var requiredHorseSelections: Int {
+        switch self {
+        case .win, .place:
+            return 1
+        case .bracketQuinella, .quinella, .exacta, .wide:
+            return 2
+        case .trio, .trifecta:
+            return 3
+        }
+    }
 }
 
 enum PopularityBand: String, CaseIterable, Codable, Identifiable, Hashable {

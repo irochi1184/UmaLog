@@ -10,7 +10,7 @@ struct RecordFormState {
     var payoutText: String = ""
     var racecourse: Racecourse = .tokyo
     var raceNumber: Int = 1
-    var horseNumber: Int = 1
+    var horseNumbers: [Int] = []
     var jockeyName: String = ""
     var horseName: String = ""
     var raceTimeDetail: String = ""
