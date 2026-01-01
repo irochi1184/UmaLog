@@ -233,6 +233,18 @@ struct RecordsTabView: View {
         return value.rawValue
     }
 
+    private func normalizeHorseSelection(maxSelection: Int) {
+        if formState.horseNumbers.count > maxSelection {
+            formState.horseNumbers = Array(formState.horseNumbers.prefix(maxSelection))
+        }
+    }
+
+    private func normalizeEditHorseSelection(maxSelection: Int) {
+        if editState.horseNumbers.count > maxSelection {
+            editState.horseNumbers = Array(editState.horseNumbers.prefix(maxSelection))
+        }
+    }
+
     private func preservedValue(from text: String, isEnabled: Bool, original: String?) -> String? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         if isEnabled {
@@ -260,6 +272,8 @@ struct RecordsTabView: View {
             let investment = AmountFormatting.parseAmount(formState.investmentText),
             let payout = AmountFormatting.parseAmount(formState.payoutText)
         else { return }
+
+        normalizeHorseSelection(maxSelection: formState.ticketType.requiredHorseSelections)
 
         let horseNumberText: String? = {
             guard !formState.horseNumbers.isEmpty else { return nil }
@@ -312,6 +326,8 @@ struct RecordsTabView: View {
             let investment = AmountFormatting.parseAmount(editState.investmentText),
             let payout = AmountFormatting.parseAmount(editState.payoutText)
         else { return }
+
+        normalizeEditHorseSelection(maxSelection: editState.ticketType.requiredHorseSelections)
 
         withAnimation {
             record.createdAt = calendar.startOfDay(for: editState.date)
