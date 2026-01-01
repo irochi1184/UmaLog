@@ -40,7 +40,18 @@ struct ContentView: View {
     }
 
     private var calendar: Calendar {
-        Calendar.autoupdatingCurrent
+        var calendar = Calendar.autoupdatingCurrent
+        calendar.locale = .autoupdatingCurrent
+        return calendar
+    }
+
+    private var amountFormatter: NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        formatter.usesGroupingSeparator = true
+        return formatter
     }
 
     var body: some View {
@@ -369,7 +380,7 @@ struct ContentView: View {
                                     Text("\(record.timeSlot.rawValue) × \(record.popularityBand.rawValue)")
                                         .font(.headline)
                                     Spacer()
-                                    Text(record.createdAt, style: .date)
+                                    Text(record.createdAt, format: .dateTime.year().month().day().locale(.autoupdatingCurrent).calendar(calendar))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
@@ -432,8 +443,8 @@ struct ContentView: View {
 
     private func addRecord() {
         guard
-            let investment = Double(investmentText),
-            let payout = Double(payoutText)
+            let investment = parseAmount(investmentText),
+            let payout = parseAmount(payoutText)
         else { return }
 
         let record = BetRecord(
@@ -476,8 +487,8 @@ struct ContentView: View {
     private func saveEditing() {
         guard
             let record = editingRecord,
-            let investment = Double(editingInvestmentText),
-            let payout = Double(editingPayoutText)
+            let investment = parseAmount(editingInvestmentText),
+            let payout = parseAmount(editingPayoutText)
         else { return }
 
         withAnimation {
@@ -494,11 +505,11 @@ struct ContentView: View {
     }
 
     private var isValidInput: Bool {
-        (Double(investmentText) ?? 0) > 0
+        (parseAmount(investmentText) ?? 0) > 0
     }
 
     private var isEditingValid: Bool {
-        (Double(editingInvestmentText) ?? 0) > 0 && editingRecord != nil
+        (parseAmount(editingInvestmentText) ?? 0) > 0 && editingRecord != nil
     }
 
     private func summaryStat(title: String, value: String) -> some View {
@@ -590,14 +601,21 @@ struct ContentView: View {
         formatter.numberStyle = .currency
         formatter.currencyCode = "JPY"
         formatter.maximumFractionDigits = 0
+        formatter.locale = .autoupdatingCurrent
         return formatter.string(from: NSNumber(value: value)) ?? "¥0"
     }
 
     private func formattedAmount(_ value: Double) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 0
-        return formatter.string(from: NSNumber(value: value)) ?? ""
+        return amountFormatter.string(from: NSNumber(value: value)) ?? ""
+    }
+
+    private func parseAmount(_ text: String) -> Double? {
+        if let number = amountFormatter.number(from: text)?.doubleValue {
+            return number
+        }
+        let grouping = amountFormatter.groupingSeparator ?? ","
+        let sanitized = text.replacingOccurrences(of: grouping, with: "").replacingOccurrences(of: " ", with: "")
+        return Double(sanitized)
     }
 
     private var currentMonthTitle: String {
