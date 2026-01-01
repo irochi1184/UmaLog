@@ -54,6 +54,15 @@ struct ContentView: View {
         return formatter
     }
 
+    private var plainAmountFormatter: NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        formatter.usesGroupingSeparator = false
+        return formatter
+    }
+
     var body: some View {
         TabView {
             NavigationStack {
@@ -86,6 +95,7 @@ struct ContentView: View {
                         }
                     }
                 }
+                .toolbar(.visible, for: .keyboard)
                 .sheet(isPresented: $isEditing) {
                     editSheet
                 }
@@ -302,7 +312,7 @@ struct ContentView: View {
                         DatePicker("日付", selection: $editingDate, displayedComponents: .date)
                             .datePickerStyle(.compact)
                             .environment(\.locale, .autoupdatingCurrent)
-                            .onChange(of: editingDate) { newValue in
+                            .onChange(of: editingDate) { _, newValue in
                                 displayedMonth = newValue
                             }
                     }
@@ -342,6 +352,7 @@ struct ContentView: View {
                     }
                 }
             }
+            .toolbar(.visible, for: .keyboard)
         }
     }
 
@@ -380,7 +391,7 @@ struct ContentView: View {
                                     Text("\(record.timeSlot.rawValue) × \(record.popularityBand.rawValue)")
                                         .font(.headline)
                                     Spacer()
-                                    Text(record.createdAt, format: .dateTime.year().month().day().locale(.autoupdatingCurrent).calendar(calendar))
+                                    Text(historyDateFormatter.string(from: record.createdAt))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
@@ -479,8 +490,8 @@ struct ContentView: View {
         editingPopularityBand = record.popularityBand
         editingRaceGrade = record.raceGrade
         editingTimeSlot = record.timeSlot
-        editingInvestmentText = formattedAmount(record.investment)
-        editingPayoutText = formattedAmount(record.payout)
+        editingInvestmentText = plainAmount(record.investment)
+        editingPayoutText = plainAmount(record.payout)
         isEditing = true
     }
 
@@ -531,7 +542,7 @@ struct ContentView: View {
             DatePicker("日付", selection: $selectedDate, displayedComponents: .date)
                 .datePickerStyle(.compact)
                 .environment(\.locale, .autoupdatingCurrent)
-                .onChange(of: selectedDate) { newValue in
+                .onChange(of: selectedDate) { _, newValue in
                     displayedMonth = newValue
                 }
         }
@@ -609,6 +620,10 @@ struct ContentView: View {
         return amountFormatter.string(from: NSNumber(value: value)) ?? ""
     }
 
+    private func plainAmount(_ value: Double) -> String {
+        return plainAmountFormatter.string(from: NSNumber(value: value)) ?? ""
+    }
+
     private func parseAmount(_ text: String) -> Double? {
         if let number = amountFormatter.number(from: text)?.doubleValue {
             return number
@@ -631,6 +646,14 @@ struct ContentView: View {
         let startIndex = (calendar.firstWeekday - 1 + symbols.count) % symbols.count
         let ordered = Array(symbols[startIndex...] + symbols[..<startIndex])
         return ordered
+    }
+
+    private var historyDateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.calendar = calendar
+        formatter.setLocalizedDateFormatFromTemplate("yMd")
+        return formatter
     }
 
     private var calendarDays: [Date?] {
