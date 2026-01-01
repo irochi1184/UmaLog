@@ -106,11 +106,6 @@ struct ContentView: View {
                             .padding(.bottom, 24)
                     }
                 }
-                .safeAreaInset(edge: .bottom) {
-                    if isKeyboardActive {
-                        keyboardDismissBar
-                    }
-                }
             }
             .tabItem {
                 Label("記録", systemImage: "square.and.pencil")
@@ -354,11 +349,6 @@ struct ContentView: View {
                     Button("閉じる") {
                         focusedAmountField = nil
                     }
-                }
-            }
-            .safeAreaInset(edge: .bottom) {
-                if isKeyboardActive {
-                    keyboardDismissBar
                 }
             }
         }
@@ -668,26 +658,6 @@ struct ContentView: View {
         let dates = datesInMonth(for: displayedMonth)
         let offset = weekdayOffset(for: displayedMonth)
         return Array(repeating: nil, count: offset) + dates
-    }
-
-    private var keyboardDismissBar: some View {
-        HStack {
-            Spacer()
-            Button {
-                focusedAmountField = nil
-            } label: {
-                Label("閉じる", systemImage: "keyboard.chevron.compact.down")
-                    .font(.body.weight(.semibold))
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            Spacer()
-        }
-        .background(.thinMaterial)
-    }
-
-    private var isKeyboardActive: Bool {
-        focusedAmountField != nil
     }
 
     private var toastView: some View {
