@@ -199,7 +199,12 @@ struct RecordFormSection: View {
             }
             MarkCardTicketTypeSelector(title: "式別", selection: $formState.ticketType)
             if showHorseNumber {
-                numberPicker(title: "馬番", selection: $formState.horseNumber, range: 1...18, unit: "番")
+                MarkCardHorseNumberSelector(
+                    title: "馬番",
+                    selection: $formState.horseNumbers,
+                    maxSelection: formState.ticketType.requiredHorseSelections,
+                    isBracket: formState.ticketType == .bracketQuinella
+                )
             }
             if showJockey {
                 suggestionField(title: "騎手", placeholder: "例: C.ルメール", text: $formState.jockeyName, suggestions: jockeySuggestions)
@@ -398,7 +403,12 @@ struct EditRecordSheet: View {
                             }
                             MarkCardTicketTypeSelector(title: "式別", selection: $editState.ticketType)
                             if showHorseNumber || !existingHorseNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                numberPicker(title: "馬番", selection: $editState.horseNumber, range: 1...18, unit: "番")
+                                MarkCardHorseNumberSelector(
+                                    title: "馬番",
+                                    selection: $editState.horseNumbers,
+                                    maxSelection: editState.ticketType.requiredHorseSelections,
+                                    isBracket: editState.ticketType == .bracketQuinella
+                                )
                             }
                             if showJockey || !editState.jockeyName.isEmpty {
                                 suggestionField(title: "騎手", placeholder: "例: C.ルメール", text: $editState.jockeyName, suggestions: jockeySuggestions)
@@ -687,6 +697,75 @@ private struct MarkCardCourseSelector: View {
 
     private func verticalLabel(for text: String) -> String {
         text.map { String($0) }.joined(separator: "\n")
+    }
+}
+
+private struct MarkCardHorseNumberSelector: View {
+    let title: String
+    @Binding var selection: [Int]
+    let maxSelection: Int
+    let isBracket: Bool
+
+    private var firstRow: [Int] {
+        isBracket ? Array(1...8) : Array(1...9)
+    }
+
+    private var secondRow: [Int] {
+        isBracket ? [] : Array(10...18)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            VStack(alignment: .leading, spacing: 6) {
+                rowView(numbers: firstRow)
+                if !secondRow.isEmpty {
+                    rowView(numbers: secondRow)
+                }
+            }
+        }
+    }
+
+    private func rowView(numbers: [Int]) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(numbers, id: \.self) { number in
+                    Button {
+                        toggle(number)
+                    } label: {
+                        Text("\(number)")
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding(.vertical, 5)
+                            .padding(.horizontal, 4)
+                            .frame(width: 20, height: 46)
+                            .background(selection.contains(number) ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
+                            .foregroundStyle(selection.contains(number) ? Color.white : Color.primary)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(selection.contains(number) ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!selection.contains(number) && selection.count >= maxSelection)
+                }
+            }
+            .padding(.vertical, 4)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+    }
+
+    private func toggle(_ number: Int) {
+        if selection.contains(number) {
+            selection.removeAll { $0 == number }
+        } else if selection.count < maxSelection {
+            selection.append(number)
+            selection.sort()
+        }
     }
 }
 

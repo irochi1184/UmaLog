@@ -12,7 +12,7 @@ struct EditRecordState {
     var isPresented: Bool = false
     var racecourse: Racecourse = .tokyo
     var raceNumber: Int = 1
-    var horseNumber: Int = 1
+    var horseNumbers: [Int] = []
     var jockeyName: String = ""
     var horseName: String = ""
     var raceTimeDetail: String = ""
@@ -41,7 +41,9 @@ struct EditRecordState {
         isPresented = true
         racecourse = record.racecourse.flatMap(Racecourse.init(rawValue:)) ?? .tokyo
         raceNumber = Int(record.raceNumber ?? "") ?? 1
-        horseNumber = Int(record.horseNumber ?? "") ?? 1
+        horseNumbers = record.horseNumber?
+            .split(whereSeparator: { $0 == "," || $0 == "-" || $0 == "/" || $0 == "・" })
+            .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) } ?? []
         jockeyName = record.jockeyName ?? ""
         horseName = record.horseName ?? ""
         raceTimeDetail = record.raceTimeDetail ?? ""
