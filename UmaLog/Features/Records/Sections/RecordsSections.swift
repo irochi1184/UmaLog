@@ -201,11 +201,6 @@ struct RecordFormSection: View {
             if showHorseName {
                 suggestionField(title: "馬名", placeholder: "例: ○○エース", text: $formState.horseName, suggestions: horseSuggestions)
             }
-            if showRaceTime {
-                selectionPicker(title: "発走予定（5分刻み）", selection: $formState.raceTimeDetail, options: fiveMinuteOptions) {
-                    Text($0.isEmpty ? "未選択" : $0).tag($0)
-                }
-            }
             if showCourseSurface {
                 selectionPicker(title: "コース（芝・ダートなど）", selection: $formState.courseSurface, options: CourseSurface.allCases) {
                     Text($0.rawValue).tag($0)
