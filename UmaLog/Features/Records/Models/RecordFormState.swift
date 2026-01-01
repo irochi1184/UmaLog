@@ -8,14 +8,17 @@ struct RecordFormState {
     var selectedDate: Date = .now
     var investmentText: String = ""
     var payoutText: String = ""
-    var racecourse: String = ""
-    var raceNumber: String = ""
-    var horseNumber: String = ""
+    var racecourse: Racecourse = .tokyo
+    var raceNumber: Int = 1
+    var horseNumber: Int = 1
     var jockeyName: String = ""
     var horseName: String = ""
     var raceTimeDetail: String = ""
-    var course: String = ""
-    var courseLength: String = ""
+    var courseSurface: CourseSurface = .turf
+    var courseDirection: CourseDirection = .right
+    var courseLength: RaceDistance = .m1600
+    var weather: Weather = .sunny
+    var trackCondition: TrackCondition = .good
     var memo: String = ""
 
     mutating func resetAmounts() {

@@ -97,82 +97,6 @@ struct AnalysisSection: View {
     }
 }
 
-struct InputSettingsSection: View {
-    @Binding var prefersQuickEntry: Bool
-    @Binding var showRacecourse: Bool
-    @Binding var showRaceNumber: Bool
-    @Binding var showHorseNumber: Bool
-    @Binding var showJockey: Bool
-    @Binding var showHorseName: Bool
-    @Binding var showRaceTime: Bool
-    @Binding var showCourse: Bool
-    @Binding var showCourseLength: Bool
-    @Binding var showMemo: Bool
-    let cardBackground: Color
-    let onSelectQuick: () -> Void
-    let onSelectDetailed: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("入力項目のカスタマイズ")
-                .font(.headline)
-                .foregroundStyle(.white)
-
-            VStack(alignment: .leading, spacing: 12) {
-                Text("サクッと記録モードなら最低限のみ、がっつり記録モードなら詳細をすべて出し、好みに合わせてチェックを変えられます。")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-
-                HStack(spacing: 12) {
-                    modeButton(title: "サクッと記録", isSelected: prefersQuickEntry) {
-                        prefersQuickEntry = true
-                        onSelectQuick()
-                    }
-                    modeButton(title: "がっつり記録", isSelected: !prefersQuickEntry) {
-                        prefersQuickEntry = false
-                        onSelectDetailed()
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    toggleRow(title: "競馬場名", isOn: $showRacecourse)
-                    toggleRow(title: "何レースか", isOn: $showRaceNumber)
-                    toggleRow(title: "馬番", isOn: $showHorseNumber)
-                    toggleRow(title: "騎手", isOn: $showJockey)
-                    toggleRow(title: "馬名", isOn: $showHorseName)
-                    toggleRow(title: "発走予定や詳細時間", isOn: $showRaceTime)
-                    toggleRow(title: "コース種類（芝・ダートなど）", isOn: $showCourse)
-                    toggleRow(title: "コースの長さ", isOn: $showCourseLength)
-                    toggleRow(title: "ひと言メモ", isOn: $showMemo)
-                }
-            }
-            .padding()
-            .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
-        }
-    }
-
-    private func modeButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.subheadline.weight(.semibold))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(isSelected ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.systemGray5))
-                .foregroundStyle(isSelected ? .white : .primary)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func toggleRow(title: String, isOn: Binding<Bool>) -> some View {
-        Toggle(isOn: isOn) {
-            Text(title)
-                .font(.subheadline)
-        }
-        .toggleStyle(.switch)
-    }
-}
-
 struct RecordFormSection: View {
     @Binding var formState: RecordFormState
     let isValidInput: Bool
@@ -186,9 +110,18 @@ struct RecordFormSection: View {
     let showJockey: Bool
     let showHorseName: Bool
     let showRaceTime: Bool
-    let showCourse: Bool
+    let showCourseSurface: Bool
+    let showCourseDirection: Bool
     let showCourseLength: Bool
+    let showWeather: Bool
+    let showTrackCondition: Bool
     let showMemo: Bool
+    let showTimeSlot: Bool
+    let fiveMinuteOptions: [String]
+    let courseLengthOptions: [RaceDistance]
+    let courseDistanceFormatter: (RaceDistance) -> String
+    let jockeySuggestions: [String]
+    let horseSuggestions: [String]
     let onAdd: () -> Void
 
     var body: some View {
@@ -239,7 +172,9 @@ struct RecordFormSection: View {
             pickerRow(title: "馬券種", selection: $formState.ticketType, options: TicketType.allCases)
             pickerRow(title: "人気帯", selection: $formState.popularityBand, options: PopularityBand.allCases)
             pickerRow(title: "レース格", selection: $formState.raceGrade, options: RaceGrade.allCases)
-            pickerRow(title: "時間帯", selection: $formState.timeSlot, options: TimeSlot.allCases)
+            if showTimeSlot {
+                pickerRow(title: "時間帯", selection: $formState.timeSlot, options: TimeSlot.allCases)
+            }
         }
     }
 
@@ -255,28 +190,51 @@ struct RecordFormSection: View {
             Text("必要に応じて自由に残せる項目")
                 .font(.subheadline.weight(.semibold))
             if showRacecourse {
-                detailTextField(title: "競馬場名", placeholder: "例: 東京競馬場", text: $formState.racecourse)
+                selectionPicker(title: "競馬場名", selection: $formState.racecourse, options: Racecourse.allCases) {
+                    Text($0.rawValue).tag($0)
+                }
             }
             if showRaceNumber {
-                detailTextField(title: "何レースか", placeholder: "例: 11R", text: $formState.raceNumber)
+                numberPicker(title: "何レースか", selection: $formState.raceNumber, range: 1...12, unit: "R")
             }
             if showHorseNumber {
-                detailTextField(title: "馬番", placeholder: "例: 7", text: $formState.horseNumber, keyboardType: .numberPad)
+                numberPicker(title: "馬番", selection: $formState.horseNumber, range: 1...18, unit: "番")
             }
             if showJockey {
-                detailTextField(title: "騎手", placeholder: "例: C.ルメール", text: $formState.jockeyName)
+                suggestionField(title: "騎手", placeholder: "例: C.ルメール", text: $formState.jockeyName, suggestions: jockeySuggestions)
             }
             if showHorseName {
-                detailTextField(title: "馬名", placeholder: "例: ○○エース", text: $formState.horseName)
+                suggestionField(title: "馬名", placeholder: "例: ○○エース", text: $formState.horseName, suggestions: horseSuggestions)
             }
             if showRaceTime {
-                detailTextField(title: "発走予定や詳細時間", placeholder: "例: 15:05発走", text: $formState.raceTimeDetail)
+                selectionPicker(title: "発走予定（5分刻み）", selection: $formState.raceTimeDetail, options: fiveMinuteOptions) {
+                    Text($0.isEmpty ? "未選択" : $0).tag($0)
+                }
             }
-            if showCourse {
-                detailTextField(title: "コース（芝・ダートなど）", placeholder: "例: 芝・右回り", text: $formState.course)
+            if showCourseSurface {
+                selectionPicker(title: "コース（芝・ダートなど）", selection: $formState.courseSurface, options: CourseSurface.allCases) {
+                    Text($0.rawValue).tag($0)
+                }
+            }
+            if showCourseDirection {
+                selectionPicker(title: "コースの向き", selection: $formState.courseDirection, options: CourseDirection.allCases) {
+                    Text($0.rawValue).tag($0)
+                }
             }
             if showCourseLength {
-                detailTextField(title: "コースの長さ", placeholder: "例: 1600m", text: $formState.courseLength, keyboardType: .numbersAndPunctuation)
+                selectionPicker(title: "コースの長さ", selection: $formState.courseLength, options: courseLengthOptions) {
+                    Text(courseDistanceFormatter($0)).tag($0)
+                }
+            }
+            if showWeather {
+                selectionPicker(title: "天気", selection: $formState.weather, options: Weather.allCases) {
+                    Text($0.rawValue).tag($0)
+                }
+            }
+            if showTrackCondition {
+                selectionPicker(title: "馬場状態", selection: $formState.trackCondition, options: TrackCondition.allCases) {
+                    Text($0.rawValue).tag($0)
+                }
             }
             if showMemo {
                 detailTextField(title: "ひと言メモ", placeholder: "例: スタートで出負け", text: $formState.memo)
@@ -285,7 +243,7 @@ struct RecordFormSection: View {
     }
 
     private var hasDetailedFields: Bool {
-        showRacecourse || showRaceNumber || showHorseNumber || showJockey || showHorseName || showRaceTime || showCourse || showCourseLength || showMemo
+        showRacecourse || showRaceNumber || showHorseNumber || showJockey || showHorseName || showRaceTime || showCourseSurface || showCourseDirection || showCourseLength || showWeather || showTrackCondition || showMemo
     }
 
     private func pickerRow<Option: Identifiable & RawRepresentable & Hashable>(
@@ -314,6 +272,83 @@ struct RecordFormSection: View {
             TextField(placeholder, text: text)
                 .textFieldStyle(.roundedBorder)
                 .keyboardType(keyboardType)
+        }
+    }
+
+    private func numberPicker(title: String, selection: Binding<Int>, range: ClosedRange<Int>, unit: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Picker(title, selection: selection) {
+                ForEach(Array(range), id: \.self) { value in
+                    Text("\(value)\(unit)").tag(value)
+                }
+            }
+            .pickerStyle(.menu)
+        }
+    }
+
+    private func selectionPicker<Option: Hashable & Identifiable>(
+        title: String,
+        selection: Binding<Option>,
+        options: [Option],
+        @ViewBuilder label: @escaping (Option) -> some View
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Picker(title, selection: selection) {
+                ForEach(options) { option in
+                    label(option)
+                }
+            }
+            .pickerStyle(.menu)
+        }
+    }
+
+    private func selectionPicker(
+        title: String,
+        selection: Binding<String>,
+        options: [String],
+        @ViewBuilder label: @escaping (String) -> some View
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Picker(title, selection: selection) {
+                ForEach(options, id: \.self) { option in
+                    label(option)
+                }
+            }
+            .pickerStyle(.menu)
+        }
+    }
+
+    private func suggestionField(title: String, placeholder: String, text: Binding<String>, suggestions: [String]) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            HStack(spacing: 8) {
+                TextField(placeholder, text: text)
+                    .textFieldStyle(.roundedBorder)
+                if !suggestions.isEmpty {
+                    Menu {
+                        ForEach(suggestions, id: \.self) { item in
+                            Button(item) {
+                                text.wrappedValue = item
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "text.badge.plus")
+                            .padding(8)
+                            .background(Color(.systemGray5), in: Circle())
+                    }
+                }
+            }
         }
     }
 
@@ -404,10 +439,43 @@ struct EditRecordSheet: View {
     let showJockey: Bool
     let showHorseName: Bool
     let showRaceTime: Bool
-    let showCourse: Bool
+    let showCourseSurface: Bool
+    let showCourseDirection: Bool
     let showCourseLength: Bool
+    let showWeather: Bool
+    let showTrackCondition: Bool
     let showMemo: Bool
+    let showTimeSlot: Bool
+    let fiveMinuteOptions: [String]
+    let courseLengthOptions: [RaceDistance]
+    let courseDistanceFormatter: (RaceDistance) -> String
+    let jockeySuggestions: [String]
+    let horseSuggestions: [String]
     let onSave: () -> Void
+
+    private var existingRacecourse: String {
+        editState.record?.racecourse ?? ""
+    }
+
+    private var existingRaceNumber: String {
+        editState.record?.raceNumber ?? ""
+    }
+
+    private var existingHorseNumber: String {
+        editState.record?.horseNumber ?? ""
+    }
+
+    private var existingRaceTime: String {
+        editState.record?.raceTimeDetail ?? ""
+    }
+
+    private var existingCourseLength: String {
+        editState.record?.courseLength ?? ""
+    }
+
+    private var existingMemo: String {
+        editState.record?.memo ?? ""
+    }
 
     var body: some View {
         NavigationStack {
@@ -426,7 +494,9 @@ struct EditRecordSheet: View {
                         pickerRow(title: "馬券種", selection: $editState.ticketType, options: TicketType.allCases)
                         pickerRow(title: "人気帯", selection: $editState.popularityBand, options: PopularityBand.allCases)
                         pickerRow(title: "レース格", selection: $editState.raceGrade, options: RaceGrade.allCases)
-                        pickerRow(title: "時間帯", selection: $editState.timeSlot, options: TimeSlot.allCases)
+                        if showTimeSlot {
+                            pickerRow(title: "時間帯", selection: $editState.timeSlot, options: TimeSlot.allCases)
+                        }
                     }
 
                     HStack(spacing: 12) {
@@ -439,31 +509,54 @@ struct EditRecordSheet: View {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("詳細入力（任意）")
                                 .font(.subheadline.weight(.semibold))
-                            if showRacecourse || !editState.racecourse.isEmpty {
-                                detailTextField(title: "競馬場名", placeholder: "例: 東京競馬場", text: $editState.racecourse)
+                            if showRacecourse || !existingRacecourse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                selectionPicker(title: "競馬場名", selection: $editState.racecourse, options: Racecourse.allCases) {
+                                    Text($0.rawValue).tag($0)
+                                }
                             }
-                            if showRaceNumber || !editState.raceNumber.isEmpty {
-                                detailTextField(title: "何レースか", placeholder: "例: 11R", text: $editState.raceNumber)
+                            if showRaceNumber || !existingRaceNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                numberPicker(title: "何レースか", selection: $editState.raceNumber, range: 1...12, unit: "R")
                             }
-                            if showHorseNumber || !editState.horseNumber.isEmpty {
-                                detailTextField(title: "馬番", placeholder: "例: 7", text: $editState.horseNumber, keyboardType: .numberPad)
+                            if showHorseNumber || !existingHorseNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                numberPicker(title: "馬番", selection: $editState.horseNumber, range: 1...18, unit: "番")
                             }
                             if showJockey || !editState.jockeyName.isEmpty {
-                                detailTextField(title: "騎手", placeholder: "例: C.ルメール", text: $editState.jockeyName)
+                                suggestionField(title: "騎手", placeholder: "例: C.ルメール", text: $editState.jockeyName, suggestions: jockeySuggestions)
                             }
                             if showHorseName || !editState.horseName.isEmpty {
-                                detailTextField(title: "馬名", placeholder: "例: ○○エース", text: $editState.horseName)
+                                suggestionField(title: "馬名", placeholder: "例: ○○エース", text: $editState.horseName, suggestions: horseSuggestions)
                             }
-                            if showRaceTime || !editState.raceTimeDetail.isEmpty {
-                                detailTextField(title: "発走予定や詳細時間", placeholder: "例: 15:05発走", text: $editState.raceTimeDetail)
+                            if showRaceTime || !existingRaceTime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                selectionPicker(title: "発走予定（5分刻み）", selection: $editState.raceTimeDetail, options: fiveMinuteOptions) {
+                                    Text($0.isEmpty ? "未選択" : $0).tag($0)
+                                }
                             }
-                            if showCourse || !editState.course.isEmpty {
-                                detailTextField(title: "コース（芝・ダートなど）", placeholder: "例: 芝・右回り", text: $editState.course)
+                            if showCourseSurface {
+                                selectionPicker(title: "コース（芝・ダートなど）", selection: $editState.courseSurface, options: CourseSurface.allCases) {
+                                    Text($0.rawValue).tag($0)
+                                }
                             }
-                            if showCourseLength || !editState.courseLength.isEmpty {
-                                detailTextField(title: "コースの長さ", placeholder: "例: 1600m", text: $editState.courseLength, keyboardType: .numbersAndPunctuation)
+                            if showCourseDirection {
+                                selectionPicker(title: "コースの向き", selection: $editState.courseDirection, options: CourseDirection.allCases) {
+                                    Text($0.rawValue).tag($0)
+                                }
                             }
-                            if showMemo || !editState.memo.isEmpty {
+                            if showCourseLength || !existingCourseLength.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                selectionPicker(title: "コースの長さ", selection: $editState.courseLength, options: courseLengthOptions) {
+                                    Text(courseDistanceFormatter($0)).tag($0)
+                                }
+                            }
+                            if showWeather {
+                                selectionPicker(title: "天気", selection: $editState.weather, options: Weather.allCases) {
+                                    Text($0.rawValue).tag($0)
+                                }
+                            }
+                            if showTrackCondition {
+                                selectionPicker(title: "馬場状態", selection: $editState.trackCondition, options: TrackCondition.allCases) {
+                                    Text($0.rawValue).tag($0)
+                                }
+                            }
+                            if showMemo || !existingMemo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 detailTextField(title: "ひと言メモ", placeholder: "例: スタートで出負け", text: $editState.memo)
                             }
                         }
@@ -520,17 +613,15 @@ struct EditRecordSheet: View {
             || showJockey
             || showHorseName
             || showRaceTime
-            || showCourse
+            || showCourseSurface
+            || showCourseDirection
             || showCourseLength
+            || showWeather
+            || showTrackCondition
             || showMemo
-            || !editState.racecourse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            || !editState.raceNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            || !editState.horseNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             || !editState.jockeyName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             || !editState.horseName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             || !editState.raceTimeDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            || !editState.course.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            || !editState.courseLength.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             || !editState.memo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
@@ -571,7 +662,7 @@ private func placeholderCard(text: String) -> some View {
 private func detailLines(for record: BetRecord) -> [String] {
     var lines: [String] = []
 
-    let placeLine = [record.racecourse, record.raceNumber]
+    let placeLine = [record.racecourse, record.raceNumber.map { "\($0)" }]
         .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
         .filter { !$0.isEmpty }
         .joined(separator: " / ")
@@ -579,7 +670,7 @@ private func detailLines(for record: BetRecord) -> [String] {
         lines.append(placeLine)
     }
 
-    let horseLine = [record.horseNumber, record.horseName, record.jockeyName]
+    let horseLine = [record.horseNumber.map { "\($0)" }, record.horseName, record.jockeyName]
         .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
         .filter { !$0.isEmpty }
         .joined(separator: " / ")
@@ -587,12 +678,27 @@ private func detailLines(for record: BetRecord) -> [String] {
         lines.append(horseLine)
     }
 
-    let courseLine = [record.raceTimeDetail, record.course, record.courseLength]
+    let distance = record.courseLength.flatMap { value -> String? in
+        guard !value.isEmpty else { return nil }
+        if value.hasSuffix("m") { return value }
+        if Int(value) != nil { return "\(value)m" }
+        return value
+    }
+
+    let courseLine = [record.raceTimeDetail, record.courseSurface, record.courseDirection, distance]
         .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
         .filter { !$0.isEmpty }
         .joined(separator: " / ")
     if !courseLine.isEmpty {
         lines.append(courseLine)
+    }
+
+    let conditionLine = [record.weather, record.trackCondition]
+        .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+        .filter { !$0.isEmpty }
+        .joined(separator: " / ")
+    if !conditionLine.isEmpty {
+        lines.append(conditionLine)
     }
 
     if let memo = record.memo?.trimmingCharacters(in: .whitespacesAndNewlines), !memo.isEmpty {

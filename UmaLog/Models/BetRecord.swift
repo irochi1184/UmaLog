@@ -23,8 +23,11 @@ final class BetRecord {
     var jockeyName: String?
     var horseName: String?
     var raceTimeDetail: String?
-    var course: String?
+    var courseSurface: String?
+    var courseDirection: String?
     var courseLength: String?
+    var weather: String?
+    var trackCondition: String?
     var memo: String?
 
     init(
@@ -41,8 +44,11 @@ final class BetRecord {
         jockeyName: String? = nil,
         horseName: String? = nil,
         raceTimeDetail: String? = nil,
-        course: String? = nil,
+        courseSurface: String? = nil,
+        courseDirection: String? = nil,
         courseLength: String? = nil,
+        weather: String? = nil,
+        trackCondition: String? = nil,
         memo: String? = nil
     ) {
         self.createdAt = createdAt
@@ -58,8 +64,11 @@ final class BetRecord {
         self.jockeyName = jockeyName
         self.horseName = horseName
         self.raceTimeDetail = raceTimeDetail
-        self.course = course
+        self.courseSurface = courseSurface
+        self.courseDirection = courseDirection
         self.courseLength = courseLength
+        self.weather = weather
+        self.trackCondition = trackCondition
         self.memo = memo
     }
 

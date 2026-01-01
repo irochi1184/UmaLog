@@ -10,14 +10,17 @@ struct EditRecordState {
     var investmentText: String = ""
     var payoutText: String = ""
     var isPresented: Bool = false
-    var racecourse: String = ""
-    var raceNumber: String = ""
-    var horseNumber: String = ""
+    var racecourse: Racecourse = .tokyo
+    var raceNumber: Int = 1
+    var horseNumber: Int = 1
     var jockeyName: String = ""
     var horseName: String = ""
     var raceTimeDetail: String = ""
-    var course: String = ""
-    var courseLength: String = ""
+    var courseSurface: CourseSurface = .turf
+    var courseDirection: CourseDirection = .right
+    var courseLength: RaceDistance = .m1600
+    var weather: Weather = .sunny
+    var trackCondition: TrackCondition = .good
     var memo: String = ""
 
     var isValid: Bool {
@@ -36,14 +39,17 @@ struct EditRecordState {
         investmentText = AmountFormatting.plainFormatter().string(from: NSNumber(value: record.investment)) ?? ""
         payoutText = AmountFormatting.plainFormatter().string(from: NSNumber(value: record.payout)) ?? ""
         isPresented = true
-        racecourse = record.racecourse ?? ""
-        raceNumber = record.raceNumber ?? ""
-        horseNumber = record.horseNumber ?? ""
+        racecourse = record.racecourse.flatMap(Racecourse.init(rawValue:)) ?? .tokyo
+        raceNumber = Int(record.raceNumber ?? "") ?? 1
+        horseNumber = Int(record.horseNumber ?? "") ?? 1
         jockeyName = record.jockeyName ?? ""
         horseName = record.horseName ?? ""
         raceTimeDetail = record.raceTimeDetail ?? ""
-        course = record.course ?? ""
-        courseLength = record.courseLength ?? ""
+        courseSurface = record.courseSurface.flatMap(CourseSurface.init(rawValue:)) ?? .turf
+        courseDirection = record.courseDirection.flatMap(CourseDirection.init(rawValue:)) ?? .right
+        courseLength = record.courseLength.flatMap(RaceDistance.init(rawValue:)) ?? .m1600
+        weather = record.weather.flatMap(Weather.init(rawValue:)) ?? .sunny
+        trackCondition = record.trackCondition.flatMap(TrackCondition.init(rawValue:)) ?? .good
         memo = record.memo ?? ""
     }
 }
