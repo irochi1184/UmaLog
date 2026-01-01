@@ -633,11 +633,11 @@ private struct MarkCardRaceNumberSelector: View {
                             selection = number
                         } label: {
                             Text("\(number)")
-                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .font(.system(size: 10, weight: .semibold, design: .rounded))
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .padding(.vertical, 5)
                                 .padding(.horizontal, 4)
-                                .frame(width: 20, height: 46)
+                                .frame(width: 22, height: 46)
                                 .background(selection == number ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
                                 .foregroundStyle(selection == number ? Color.white : Color.primary)
                                 .overlay(
