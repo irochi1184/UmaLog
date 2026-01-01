@@ -130,6 +130,12 @@ struct RecordsTabView: View {
                 }
             }
         }
+        .onChange(of: formState.ticketType) { _, newValue in
+            normalizeHorseSelection(maxSelection: newValue.requiredHorseSelections)
+        }
+        .onChange(of: editState.ticketType) { _, newValue in
+            normalizeEditHorseSelection(maxSelection: newValue.requiredHorseSelections)
+        }
     }
 
     private var cardBackground: Color {
