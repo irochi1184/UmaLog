@@ -17,6 +17,15 @@ final class BetRecord {
     var timeSlot: TimeSlot
     var investment: Double
     var payout: Double
+    var racecourse: String?
+    var raceNumber: String?
+    var horseNumber: String?
+    var jockeyName: String?
+    var horseName: String?
+    var raceTimeDetail: String?
+    var course: String?
+    var courseLength: String?
+    var memo: String?
 
     init(
         createdAt: Date = .now,
@@ -25,7 +34,16 @@ final class BetRecord {
         raceGrade: RaceGrade,
         timeSlot: TimeSlot,
         investment: Double,
-        payout: Double
+        payout: Double,
+        racecourse: String? = nil,
+        raceNumber: String? = nil,
+        horseNumber: String? = nil,
+        jockeyName: String? = nil,
+        horseName: String? = nil,
+        raceTimeDetail: String? = nil,
+        course: String? = nil,
+        courseLength: String? = nil,
+        memo: String? = nil
     ) {
         self.createdAt = createdAt
         self.ticketType = ticketType
@@ -34,6 +52,15 @@ final class BetRecord {
         self.timeSlot = timeSlot
         self.investment = investment
         self.payout = payout
+        self.racecourse = racecourse
+        self.raceNumber = raceNumber
+        self.horseNumber = horseNumber
+        self.jockeyName = jockeyName
+        self.horseName = horseName
+        self.raceTimeDetail = raceTimeDetail
+        self.course = course
+        self.courseLength = courseLength
+        self.memo = memo
     }
 
     var netProfit: Double {

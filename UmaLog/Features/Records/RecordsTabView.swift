@@ -10,6 +10,16 @@ struct RecordsTabView: View {
     @State private var editState = EditRecordState()
     @State private var showToast = false
     @FocusState private var focusedAmountField: AmountField?
+    @AppStorage("prefersQuickEntry") private var prefersQuickEntry = true
+    @AppStorage("showRacecourseField") private var showRacecourseField = false
+    @AppStorage("showRaceNumberField") private var showRaceNumberField = false
+    @AppStorage("showHorseNumberField") private var showHorseNumberField = false
+    @AppStorage("showJockeyField") private var showJockeyField = false
+    @AppStorage("showHorseNameField") private var showHorseNameField = false
+    @AppStorage("showRaceTimeField") private var showRaceTimeField = false
+    @AppStorage("showCourseField") private var showCourseField = false
+    @AppStorage("showCourseLengthField") private var showCourseLengthField = false
+    @AppStorage("showMemoField") private var showMemoField = false
 
     private let datePickerLocale = Locale(identifier: "ja_JP")
 
@@ -34,12 +44,37 @@ struct RecordsTabView: View {
                             totalPayout: AmountFormatting.currency(totalPayout)
                         )
                         AnalysisSection(pattern: worstPattern, cardBackground: cardBackground)
+                        InputSettingsSection(
+                            prefersQuickEntry: $prefersQuickEntry,
+                            showRacecourse: $showRacecourseField,
+                            showRaceNumber: $showRaceNumberField,
+                            showHorseNumber: $showHorseNumberField,
+                            showJockey: $showJockeyField,
+                            showHorseName: $showHorseNameField,
+                            showRaceTime: $showRaceTimeField,
+                            showCourse: $showCourseField,
+                            showCourseLength: $showCourseLengthField,
+                            showMemo: $showMemoField,
+                            cardBackground: cardBackground,
+                            onSelectQuick: applyQuickPreset,
+                            onSelectDetailed: applyDetailedPreset
+                        )
                         RecordFormSection(
                             formState: $formState,
                             isValidInput: isValidInput,
                             datePickerLocale: datePickerLocale,
                             cardBackground: cardBackground,
                             focusedAmountField: $focusedAmountField,
+                            prefersQuickEntry: prefersQuickEntry,
+                            showRacecourse: showRacecourseField,
+                            showRaceNumber: showRaceNumberField,
+                            showHorseNumber: showHorseNumberField,
+                            showJockey: showJockeyField,
+                            showHorseName: showHorseNameField,
+                            showRaceTime: showRaceTimeField,
+                            showCourse: showCourseField,
+                            showCourseLength: showCourseLengthField,
+                            showMemo: showMemoField,
                             onAdd: addRecord
                         )
                         HistorySection(
@@ -68,6 +103,15 @@ struct RecordsTabView: View {
                     editState: $editState,
                     datePickerLocale: datePickerLocale,
                     focusedAmountField: $focusedAmountField,
+                    showRacecourse: showRacecourseField,
+                    showRaceNumber: showRaceNumberField,
+                    showHorseNumber: showHorseNumberField,
+                    showJockey: showJockeyField,
+                    showHorseName: showHorseNameField,
+                    showRaceTime: showRaceTimeField,
+                    showCourse: showCourseField,
+                    showCourseLength: showCourseLengthField,
+                    showMemo: showMemoField,
                     onSave: saveEditing
                 )
             }
@@ -84,6 +128,30 @@ struct RecordsTabView: View {
 
     private var cardBackground: Color {
         Color(.secondarySystemBackground)
+    }
+
+    private func applyQuickPreset() {
+        showRacecourseField = false
+        showRaceNumberField = false
+        showHorseNumberField = false
+        showJockeyField = false
+        showHorseNameField = false
+        showRaceTimeField = false
+        showCourseField = false
+        showCourseLengthField = false
+        showMemoField = false
+    }
+
+    private func applyDetailedPreset() {
+        showRacecourseField = true
+        showRaceNumberField = true
+        showHorseNumberField = true
+        showJockeyField = true
+        showHorseNameField = true
+        showRaceTimeField = true
+        showCourseField = true
+        showCourseLengthField = true
+        showMemoField = true
     }
 
     private var calendar: Calendar {
@@ -152,6 +220,21 @@ struct RecordsTabView: View {
         return patterns.sorted { $0.loss > $1.loss }.first
     }
 
+    private func optionalValue(_ text: String, isEnabled: Bool) -> String? {
+        guard isEnabled else { return nil }
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
+    private func preservedValue(from text: String, isEnabled: Bool, original: String?) -> String? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if isEnabled {
+            return trimmed.isEmpty ? nil : trimmed
+        } else {
+            return original
+        }
+    }
+
     private var toastView: some View {
         HStack(spacing: 12) {
             Image(systemName: "checkmark.circle.fill")
@@ -178,7 +261,16 @@ struct RecordsTabView: View {
             raceGrade: formState.raceGrade,
             timeSlot: formState.timeSlot,
             investment: investment,
-            payout: payout
+            payout: payout,
+            racecourse: optionalValue(formState.racecourse, isEnabled: showRacecourseField),
+            raceNumber: optionalValue(formState.raceNumber, isEnabled: showRaceNumberField),
+            horseNumber: optionalValue(formState.horseNumber, isEnabled: showHorseNumberField),
+            jockeyName: optionalValue(formState.jockeyName, isEnabled: showJockeyField),
+            horseName: optionalValue(formState.horseName, isEnabled: showHorseNameField),
+            raceTimeDetail: optionalValue(formState.raceTimeDetail, isEnabled: showRaceTimeField),
+            course: optionalValue(formState.course, isEnabled: showCourseField),
+            courseLength: optionalValue(formState.courseLength, isEnabled: showCourseLengthField),
+            memo: optionalValue(formState.memo, isEnabled: showMemoField)
         )
 
         withAnimation {
@@ -214,6 +306,15 @@ struct RecordsTabView: View {
             record.timeSlot = editState.timeSlot
             record.investment = investment
             record.payout = payout
+            record.racecourse = preservedValue(from: editState.racecourse, isEnabled: showRacecourseField, original: record.racecourse)
+            record.raceNumber = preservedValue(from: editState.raceNumber, isEnabled: showRaceNumberField, original: record.raceNumber)
+            record.horseNumber = preservedValue(from: editState.horseNumber, isEnabled: showHorseNumberField, original: record.horseNumber)
+            record.jockeyName = preservedValue(from: editState.jockeyName, isEnabled: showJockeyField, original: record.jockeyName)
+            record.horseName = preservedValue(from: editState.horseName, isEnabled: showHorseNameField, original: record.horseName)
+            record.raceTimeDetail = preservedValue(from: editState.raceTimeDetail, isEnabled: showRaceTimeField, original: record.raceTimeDetail)
+            record.course = preservedValue(from: editState.course, isEnabled: showCourseField, original: record.course)
+            record.courseLength = preservedValue(from: editState.courseLength, isEnabled: showCourseLengthField, original: record.courseLength)
+            record.memo = preservedValue(from: editState.memo, isEnabled: showMemoField, original: record.memo)
             focusedAmountField = nil
             editState.isPresented = false
         }

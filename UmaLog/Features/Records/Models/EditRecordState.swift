@@ -10,6 +10,15 @@ struct EditRecordState {
     var investmentText: String = ""
     var payoutText: String = ""
     var isPresented: Bool = false
+    var racecourse: String = ""
+    var raceNumber: String = ""
+    var horseNumber: String = ""
+    var jockeyName: String = ""
+    var horseName: String = ""
+    var raceTimeDetail: String = ""
+    var course: String = ""
+    var courseLength: String = ""
+    var memo: String = ""
 
     var isValid: Bool {
         let investment = AmountFormatting.parseAmount(investmentText) ?? 0
@@ -27,5 +36,14 @@ struct EditRecordState {
         investmentText = AmountFormatting.plainFormatter().string(from: NSNumber(value: record.investment)) ?? ""
         payoutText = AmountFormatting.plainFormatter().string(from: NSNumber(value: record.payout)) ?? ""
         isPresented = true
+        racecourse = record.racecourse ?? ""
+        raceNumber = record.raceNumber ?? ""
+        horseNumber = record.horseNumber ?? ""
+        jockeyName = record.jockeyName ?? ""
+        horseName = record.horseName ?? ""
+        raceTimeDetail = record.raceTimeDetail ?? ""
+        course = record.course ?? ""
+        courseLength = record.courseLength ?? ""
+        memo = record.memo ?? ""
     }
 }
