@@ -157,12 +157,14 @@ struct RecordFormSection: View {
 
     private var dateField: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("日付")
+            Text("日付（自動で今日をセット）")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             DatePicker("日付", selection: $formState.selectedDate, displayedComponents: .date)
                 .datePickerStyle(.compact)
                 .environment(\.locale, datePickerLocale)
+                .disabled(true)
+                .opacity(0.7)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -190,9 +192,7 @@ struct RecordFormSection: View {
             Text("必要に応じて自由に残せる項目")
                 .font(.subheadline.weight(.semibold))
             if showRacecourse {
-                selectionPicker(title: "競馬場名", selection: $formState.racecourse, options: Racecourse.allCases) {
-                    Text($0.rawValue).tag($0)
-                }
+                MarkCardCourseSelector(title: "競馬場名", selection: $formState.racecourse)
             }
             if showRaceNumber {
                 numberPicker(title: "何レースか", selection: $formState.raceNumber, range: 1...12, unit: "R")
@@ -363,12 +363,14 @@ struct EditRecordSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("日付")
+                        Text("日付（自動で今日をセット）")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         DatePicker("日付", selection: $editState.date, displayedComponents: .date)
                             .datePickerStyle(.compact)
                             .environment(\.locale, datePickerLocale)
+                            .disabled(true)
+                            .opacity(0.7)
                     }
 
                     VStack(alignment: .leading, spacing: 12) {
@@ -391,9 +393,7 @@ struct EditRecordSheet: View {
                             Text("詳細入力（任意）")
                                 .font(.subheadline.weight(.semibold))
                             if showRacecourse || !existingRacecourse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                selectionPicker(title: "競馬場名", selection: $editState.racecourse, options: Racecourse.allCases) {
-                                    Text($0.rawValue).tag($0)
-                                }
+                                MarkCardCourseSelector(title: "競馬場名", selection: $editState.racecourse)
                             }
                             if showRaceNumber || !existingRaceNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 numberPicker(title: "何レースか", selection: $editState.raceNumber, range: 1...12, unit: "R")
@@ -611,6 +611,58 @@ private func suggestionField(title: String, placeholder: String, text: Binding<S
                 }
             }
         }
+    }
+}
+
+private struct MarkCardCourseSelector: View {
+    let title: String
+    @Binding var selection: Racecourse
+
+    private let orderedCourses: [Racecourse] = [
+        .nakayama, .tokyo, .kyoto, .hanshin, .fukushima,
+        .niigata, .chukyo, .kokura, .sapporo, .hakodate
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(orderedCourses) { course in
+                        Button {
+                            selection = course
+                        } label: {
+                            VStack(spacing: 8) {
+                                Text(verticalLabel(for: course.rawValue))
+                                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxHeight: .infinity)
+                            }
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 8)
+                            .frame(width: 48, height: 92)
+                            .background(selection == course ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
+                            .foregroundStyle(selection == course ? Color.white : Color.primary)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(selection == course ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+        }
+    }
+
+    private func verticalLabel(for text: String) -> String {
+        text.map { String($0) }.joined(separator: "\n")
     }
 }
 
