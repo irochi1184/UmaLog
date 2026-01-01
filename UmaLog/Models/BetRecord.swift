@@ -85,8 +85,12 @@ final class BetRecord {
 enum TicketType: String, CaseIterable, Codable, Identifiable, Hashable {
     case win = "単勝"
     case place = "複勝"
+    case bracketQuinella = "枠連"
     case quinella = "馬連"
-    case trio = "三連系"
+    case exacta = "馬単"
+    case wide = "ワイド"
+    case trio = "3連複"
+    case trifecta = "3連単"
 
     var id: String { rawValue }
 }
