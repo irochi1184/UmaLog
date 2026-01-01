@@ -711,7 +711,7 @@ private struct MarkCardHorseNumberSelector: View {
     }
 
     private var secondRow: [Int] {
-        isBracket ? [] : Array(10...18)
+        isBracket ? Array(1...8) : Array(10...18)
     }
 
     var body: some View {
@@ -722,7 +722,7 @@ private struct MarkCardHorseNumberSelector: View {
 
             VStack(alignment: .leading, spacing: 6) {
                 rowView(numbers: firstRow)
-                if !secondRow.isEmpty {
+                if shouldShowSecondRow {
                     rowView(numbers: secondRow)
                 }
             }
@@ -736,38 +736,33 @@ private struct MarkCardHorseNumberSelector: View {
                     Button {
                         toggle(number)
                     } label: {
-                        VStack(spacing: 4) {
-                            if let order = selection.firstIndex(of: number) {
-                                Text("\(order + 1)")
-                                    .font(.system(size: 10, weight: .bold, design: .rounded))
-                                    .padding(4)
-                                    .frame(maxWidth: .infinity)
-                                    .background(selection.contains(number) ? Color.white.opacity(0.85) : Color.clear)
-                                    .foregroundStyle(selection.contains(number) ? Color("MainGreen", bundle: .main) : Color.secondary)
-                                    .clipShape(Circle())
-                            } else {
-                                Text(" ")
-                                    .font(.system(size: 10))
-                                    .padding(4)
-                                    .frame(maxWidth: .infinity)
-                            }
+                        ZStack(alignment: .topLeading) {
                             Text("\(number)")
                                 .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .padding(.vertical, 5)
+                                .padding(.horizontal, 4)
+                            if let order = orderIndex(for: number) {
+                                Text("\(order)")
+                                    .font(.system(size: 8, weight: .bold, design: .rounded))
+                                    .padding(4)
+                                    .background(Color.white.opacity(0.9))
+                                    .foregroundStyle(Color("MainGreen", bundle: .main))
+                                    .clipShape(Circle())
+                                    .offset(x: -2, y: -2)
+                            }
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding(.vertical, 5)
-                        .padding(.horizontal, 4)
                         .frame(width: 20, height: 46)
-                        .background(selection.contains(number) ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
-                        .foregroundStyle(selection.contains(number) ? Color.white : Color.primary)
+                        .background(selectionContains(number) ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
+                        .foregroundStyle(selectionContains(number) ? Color.white : Color.primary)
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(selection.contains(number) ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
+                                .stroke(selectionContains(number) ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
-                    .disabled(!selection.contains(number) && selection.count >= maxSelection)
+                    .disabled(!selectionContains(number) && selection.count >= maxSelection && !isBracket)
                 }
             }
             .padding(.vertical, 4)
@@ -775,13 +770,38 @@ private struct MarkCardHorseNumberSelector: View {
         .scrollBounceBehavior(.basedOnSize)
     }
 
-    private func toggle(_ number: Int) {
-        if selection.contains(number) {
-            selection.removeAll { $0 == number }
-        } else if selection.count < maxSelection {
-            selection.append(number)
-            selection.sort()
+    private var shouldShowSecondRow: Bool {
+        guard !secondRow.isEmpty else { return false }
+        if isBracket {
+            return !selection.isEmpty || maxSelection > 1
         }
+        return true
+    }
+
+    private func toggle(_ number: Int) {
+        if isBracket {
+            if let lastIndex = selection.lastIndex(of: number) {
+                selection.remove(at: lastIndex)
+            } else if selection.count < maxSelection {
+                selection.append(number)
+            }
+        } else {
+            if selection.contains(number) {
+                selection.removeAll { $0 == number }
+            } else if selection.count < maxSelection {
+                selection.append(number)
+                selection.sort()
+            }
+        }
+    }
+
+    private func selectionContains(_ number: Int) -> Bool {
+        selection.contains(number)
+    }
+
+    private func orderIndex(for number: Int) -> Int? {
+        guard let idx = selection.firstIndex(of: number) else { return nil }
+        return idx + 1
     }
 }
 
