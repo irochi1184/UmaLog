@@ -264,6 +264,83 @@ struct RecordFormSection: View {
         }
     }
 
+    private func numberPicker(title: String, selection: Binding<Int>, range: ClosedRange<Int>, unit: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Picker(title, selection: selection) {
+                ForEach(Array(range), id: \.self) { value in
+                    Text("\(value)\(unit)").tag(value)
+                }
+            }
+            .pickerStyle(.menu)
+        }
+    }
+
+    private func selectionPicker<Option: Hashable & Identifiable>(
+        title: String,
+        selection: Binding<Option>,
+        options: [Option],
+        @ViewBuilder label: @escaping (Option) -> some View
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Picker(title, selection: selection) {
+                ForEach(options) { option in
+                    label(option)
+                }
+            }
+            .pickerStyle(.menu)
+        }
+    }
+
+    private func selectionPicker(
+        title: String,
+        selection: Binding<String>,
+        options: [String],
+        @ViewBuilder label: @escaping (String) -> some View
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Picker(title, selection: selection) {
+                ForEach(options, id: \.self) { option in
+                    label(option)
+                }
+            }
+            .pickerStyle(.menu)
+        }
+    }
+
+    private func suggestionField(title: String, placeholder: String, text: Binding<String>, suggestions: [String]) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            HStack(spacing: 8) {
+                TextField(placeholder, text: text)
+                    .textFieldStyle(.roundedBorder)
+                if !suggestions.isEmpty {
+                    Menu {
+                        ForEach(suggestions, id: \.self) { item in
+                            Button(item) {
+                                text.wrappedValue = item
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "text.badge.plus")
+                            .padding(8)
+                            .background(Color(.systemGray5), in: Circle())
+                    }
+                }
+            }
+        }
+    }
+
     private func detailTextField(title: String, placeholder: String, text: Binding<String>, keyboardType: UIKeyboardType = .default) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
