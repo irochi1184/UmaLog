@@ -132,7 +132,7 @@ enum TicketType: String, Codable, Identifiable, Hashable {
             return 1
         case .bracketQuinella, .quinella, .exacta, .wide:
             return 2
-        case .trio, .trifecta:
+        case .trio, .trifecta, .legacyTrio:
             return 3
         }
     }

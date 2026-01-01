@@ -736,19 +736,35 @@ private struct MarkCardHorseNumberSelector: View {
                     Button {
                         toggle(number)
                     } label: {
-                        Text("\(number)")
-                            .font(.system(size: 12, weight: .semibold, design: .rounded))
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding(.vertical, 5)
-                            .padding(.horizontal, 4)
-                            .frame(width: 20, height: 46)
-                            .background(selection.contains(number) ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
-                            .foregroundStyle(selection.contains(number) ? Color.white : Color.primary)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(selection.contains(number) ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        VStack(spacing: 4) {
+                            if let order = selection.firstIndex(of: number) {
+                                Text("\(order + 1)")
+                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                                    .padding(4)
+                                    .frame(maxWidth: .infinity)
+                                    .background(selection.contains(number) ? Color.white.opacity(0.85) : Color.clear)
+                                    .foregroundStyle(selection.contains(number) ? Color("MainGreen", bundle: .main) : Color.secondary)
+                                    .clipShape(Circle())
+                            } else {
+                                Text(" ")
+                                    .font(.system(size: 10))
+                                    .padding(4)
+                                    .frame(maxWidth: .infinity)
+                            }
+                            Text("\(number)")
+                                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(.vertical, 5)
+                        .padding(.horizontal, 4)
+                        .frame(width: 20, height: 46)
+                        .background(selection.contains(number) ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
+                        .foregroundStyle(selection.contains(number) ? Color.white : Color.primary)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(selection.contains(number) ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
                     .disabled(!selection.contains(number) && selection.count >= maxSelection)
