@@ -17,17 +17,53 @@ struct ContentView: View {
     @State private var raceGrade: RaceGrade = .flat
     @State private var timeSlot: TimeSlot = .afternoon
     @State private var selectedDate: Date = .now
-    @State private var displayedMonth: Date = Calendar.current.date(
-        from: Calendar.current.dateComponents([.year, .month], from: Date())
+    @State private var displayedMonth: Date = Calendar.autoupdatingCurrent.date(
+        from: Calendar.autoupdatingCurrent.dateComponents([.year, .month], from: Date())
     ) ?? Date()
     @State private var investmentText: String = ""
     @State private var payoutText: String = ""
+    @State private var editingRecord: BetRecord?
+    @State private var editingDate: Date = .now
+    @State private var editingTicketType: TicketType = .win
+    @State private var editingPopularityBand: PopularityBand = .favorite
+    @State private var editingRaceGrade: RaceGrade = .flat
+    @State private var editingTimeSlot: TimeSlot = .afternoon
+    @State private var editingInvestmentText: String = ""
+    @State private var editingPayoutText: String = ""
+    @State private var isEditing: Bool = false
+    @State private var showToast: Bool = false
+
+    @FocusState private var focusedAmountField: AmountField?
 
     private var cardBackground: Color {
         Color(.secondarySystemBackground)
     }
 
-    private let calendar = Calendar.current
+    private var calendar: Calendar {
+        var calendar = Calendar.autoupdatingCurrent
+        calendar.locale = .autoupdatingCurrent
+        return calendar
+    }
+
+    private var amountFormatter: NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        formatter.usesGroupingSeparator = true
+        return formatter
+    }
+
+    private var plainAmountFormatter: NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        formatter.usesGroupingSeparator = false
+        return formatter
+    }
+
+    private let datePickerLocale = Locale(identifier: "ja_JP")
 
     var body: some View {
         TabView {
@@ -53,6 +89,25 @@ struct ContentView: View {
                 }
                 .navigationTitle("うまログ")
                 .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("閉じる") {
+                            focusedAmountField = nil
+                        }
+                    }
+                }
+                .sheet(isPresented: $isEditing) {
+                    editSheet
+                }
+                .overlay(alignment: .bottom) {
+                    if showToast {
+                        toastView
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                            .padding(.horizontal)
+                            .padding(.bottom, 24)
+                    }
+                }
             }
             .tabItem {
                 Label("記録", systemImage: "square.and.pencil")
@@ -128,7 +183,7 @@ struct ContentView: View {
                 }
             }
             .padding()
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+            .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
         }
     }
 
@@ -176,7 +231,7 @@ struct ContentView: View {
                 }
 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 10) {
-                    ForEach(["日", "月", "火", "水", "木", "金", "土"], id: \.self) { weekday in
+                    ForEach(weekdaySymbols, id: \.self) { weekday in
                         Text(weekday)
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -247,6 +302,60 @@ struct ContentView: View {
         }
     }
 
+    private var editSheet: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("日付")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        DatePicker("日付", selection: $editingDate, displayedComponents: .date)
+                            .datePickerStyle(.compact)
+                            .environment(\.locale, datePickerLocale)
+                            .onChange(of: editingDate) { _, newValue in
+                                displayedMonth = newValue
+                            }
+                    }
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        pickerRow(title: "馬券種", selection: $editingTicketType, options: TicketType.allCases)
+                        pickerRow(title: "人気帯", selection: $editingPopularityBand, options: PopularityBand.allCases)
+                        pickerRow(title: "レース格", selection: $editingRaceGrade, options: RaceGrade.allCases)
+                        pickerRow(title: "時間帯", selection: $editingTimeSlot, options: TimeSlot.allCases)
+                    }
+
+                    HStack(spacing: 12) {
+                        amountField(title: "投資額", placeholder: "例: 1200", text: $editingInvestmentText, focus: .editInvestment)
+                        amountField(title: "払戻額", placeholder: "例: 800", text: $editingPayoutText, focus: .editPayout)
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle("記録を編集")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("閉じる") {
+                        isEditing = false
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("保存") {
+                        saveEditing()
+                    }
+                    .disabled(!isEditingValid)
+                }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("閉じる") {
+                        focusedAmountField = nil
+                    }
+                }
+            }
+        }
+    }
+
     private var formPickers: some View {
         VStack(alignment: .leading, spacing: 12) {
             pickerRow(title: "馬券種", selection: $ticketType, options: TicketType.allCases)
@@ -258,8 +367,8 @@ struct ContentView: View {
 
     private var formAmounts: some View {
         HStack(spacing: 12) {
-            amountField(title: "投資額", placeholder: "例: 1200", text: $investmentText)
-            amountField(title: "払戻額", placeholder: "例: 800", text: $payoutText)
+            amountField(title: "投資額", placeholder: "例: 1200", text: $investmentText, focus: .investment)
+            amountField(title: "払戻額", placeholder: "例: 800", text: $payoutText, focus: .payout)
         }
     }
 
@@ -274,33 +383,38 @@ struct ContentView: View {
             } else {
                 VStack(spacing: 12) {
                     ForEach(records) { record in
-                        VStack(alignment: .leading, spacing: 6) {
-                            HStack {
-                                Text("\(record.timeSlot.rawValue) × \(record.popularityBand.rawValue)")
-                                    .font(.headline)
-                                Spacer()
-                                Text(record.createdAt, style: .date)
-                                    .font(.caption)
+                        Button {
+                            startEditing(record)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack {
+                                    Text("\(record.timeSlot.rawValue) × \(record.popularityBand.rawValue)")
+                                        .font(.headline)
+                                    Spacer()
+                                    Text(historyDateFormatter.string(from: record.createdAt))
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Text("\(record.ticketType.rawValue)・\(record.raceGrade.rawValue)")
+                                    .font(.subheadline)
                                     .foregroundStyle(.secondary)
+                                HStack {
+                                    Label(currency(record.investment), systemImage: "arrow.down.right")
+                                        .foregroundStyle(.primary)
+                                    Label(currency(record.payout), systemImage: "arrow.up.right")
+                                        .foregroundStyle(.green)
+                                    Spacer()
+                                    Text("回収率 \(record.returnRate, specifier: "%.0f")%")
+                                        .font(.caption.weight(.semibold))
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(.ultraThinMaterial, in: Capsule())
+                                }
                             }
-                            Text("\(record.ticketType.rawValue)・\(record.raceGrade.rawValue)")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            HStack {
-                                Label(currency(record.investment), systemImage: "arrow.down.right")
-                                    .foregroundStyle(.primary)
-                                Label(currency(record.payout), systemImage: "arrow.up.right")
-                                    .foregroundStyle(.green)
-                                Spacer()
-                                Text("回収率 \(record.returnRate, specifier: "%.0f")%")
-                                    .font(.caption.weight(.semibold))
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .background(.ultraThinMaterial, in: Capsule())
-                            }
+                            .padding()
+                            .background(cardBackground, in: RoundedRectangle(cornerRadius: 14))
                         }
-                        .padding()
-                        .background(cardBackground, in: RoundedRectangle(cornerRadius: 14))
+                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -340,8 +454,8 @@ struct ContentView: View {
 
     private func addRecord() {
         guard
-            let investment = Double(investmentText),
-            let payout = Double(payoutText)
+            let investment = parseAmount(investmentText),
+            let payout = parseAmount(payoutText)
         else { return }
 
         let record = BetRecord(
@@ -358,11 +472,55 @@ struct ContentView: View {
             modelContext.insert(record)
             investmentText = ""
             payoutText = ""
+            focusedAmountField = nil
+            showToast = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                showToast = false
+            }
+        }
+    }
+
+    private func startEditing(_ record: BetRecord) {
+        editingRecord = record
+        editingDate = record.createdAt
+        editingTicketType = record.ticketType
+        editingPopularityBand = record.popularityBand
+        editingRaceGrade = record.raceGrade
+        editingTimeSlot = record.timeSlot
+        editingInvestmentText = plainAmount(record.investment)
+        editingPayoutText = plainAmount(record.payout)
+        isEditing = true
+    }
+
+    private func saveEditing() {
+        guard
+            let record = editingRecord,
+            let investment = parseAmount(editingInvestmentText),
+            let payout = parseAmount(editingPayoutText)
+        else { return }
+
+        withAnimation {
+            record.createdAt = calendar.startOfDay(for: editingDate)
+            record.ticketType = editingTicketType
+            record.popularityBand = editingPopularityBand
+            record.raceGrade = editingRaceGrade
+            record.timeSlot = editingTimeSlot
+            record.investment = investment
+            record.payout = payout
+            focusedAmountField = nil
+            isEditing = false
         }
     }
 
     private var isValidInput: Bool {
-        (Double(investmentText) ?? 0) > 0
+        (parseAmount(investmentText) ?? 0) > 0
+    }
+
+    private var isEditingValid: Bool {
+        (parseAmount(editingInvestmentText) ?? 0) > 0 && editingRecord != nil
     }
 
     private func summaryStat(title: String, value: String) -> some View {
@@ -383,7 +541,8 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
             DatePicker("日付", selection: $selectedDate, displayedComponents: .date)
                 .datePickerStyle(.compact)
-                .onChange(of: selectedDate) { newValue in
+                .environment(\.locale, datePickerLocale)
+                .onChange(of: selectedDate) { _, newValue in
                     displayedMonth = newValue
                 }
         }
@@ -408,7 +567,7 @@ struct ContentView: View {
         }
     }
 
-    private func amountField(title: String, placeholder: String, text: Binding<String>) -> some View {
+    private func amountField(title: String, placeholder: String, text: Binding<String>, focus: AmountField) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
                 .font(.caption)
@@ -416,6 +575,7 @@ struct ContentView: View {
             TextField(placeholder, text: text)
                 .textFieldStyle(.roundedBorder)
                 .keyboardType(.numberPad)
+                .focused($focusedAmountField, equals: focus)
         }
         .frame(maxWidth: .infinity)
     }
@@ -452,20 +612,67 @@ struct ContentView: View {
         formatter.numberStyle = .currency
         formatter.currencyCode = "JPY"
         formatter.maximumFractionDigits = 0
+        formatter.locale = .autoupdatingCurrent
         return formatter.string(from: NSNumber(value: value)) ?? "¥0"
+    }
+
+    private func formattedAmount(_ value: Double) -> String {
+        return amountFormatter.string(from: NSNumber(value: value)) ?? ""
+    }
+
+    private func plainAmount(_ value: Double) -> String {
+        return plainAmountFormatter.string(from: NSNumber(value: value)) ?? ""
+    }
+
+    private func parseAmount(_ text: String) -> Double? {
+        if let number = amountFormatter.number(from: text)?.doubleValue {
+            return number
+        }
+        let grouping = amountFormatter.groupingSeparator ?? ","
+        let sanitized = text.replacingOccurrences(of: grouping, with: "").replacingOccurrences(of: " ", with: "")
+        return Double(sanitized)
     }
 
     private var currentMonthTitle: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ja_JP")
-        formatter.dateFormat = "y年M月"
+        formatter.locale = .autoupdatingCurrent
+        formatter.calendar = calendar
+        formatter.setLocalizedDateFormatFromTemplate("yMMM")
         return formatter.string(from: displayedMonth)
+    }
+
+    private var weekdaySymbols: [String] {
+        let symbols = calendar.shortStandaloneWeekdaySymbols
+        let startIndex = (calendar.firstWeekday - 1 + symbols.count) % symbols.count
+        let ordered = Array(symbols[startIndex...] + symbols[..<startIndex])
+        return ordered
+    }
+
+    private var historyDateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.calendar = calendar
+        formatter.setLocalizedDateFormatFromTemplate("yMd")
+        return formatter
     }
 
     private var calendarDays: [Date?] {
         let dates = datesInMonth(for: displayedMonth)
         let offset = weekdayOffset(for: displayedMonth)
         return Array(repeating: nil, count: offset) + dates
+    }
+
+    private var toastView: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(.white)
+            Text("記録を追加しました")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.white)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(.black.opacity(0.75), in: Capsule())
     }
 
     private func datesInMonth(for date: Date) -> [Date] {
@@ -516,7 +723,8 @@ struct ContentView: View {
     }
 
     private func calendarCell(for date: Date) -> some View {
-        let net = dailyNetTotals[calendar.startOfDay(for: date)]
+        let totals = dailyTotals[calendar.startOfDay(for: date)]
+        let net = totals.map { $0.payout - $0.investment }
         let isToday = calendar.isDateInToday(date)
         let background: Color
 
@@ -530,14 +738,20 @@ struct ContentView: View {
             Text("\(calendar.component(.day, from: date))")
                 .font(.headline)
 
-            if let net {
-                let absNet = abs(net)
-                Text(currency(absNet))
-                    .font(.caption2.weight(.semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(net >= 0 ? Color.green : Color.red)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+            if let totals {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(currency(totals.investment))
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+
+                    Text(currency(totals.payout))
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.green)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                }
             } else {
                 Text("—")
                     .font(.caption)
@@ -553,12 +767,14 @@ struct ContentView: View {
         )
     }
 
-    private var dailyNetTotals: [Date: Double] {
+    private var dailyTotals: [Date: (investment: Double, payout: Double)] {
         Dictionary(grouping: records) { record in
             calendar.startOfDay(for: record.createdAt)
         }
         .mapValues { dailyRecords in
-            dailyRecords.reduce(0) { $0 + $1.netProfit }
+            let investment = dailyRecords.reduce(0) { $0 + $1.investment }
+            let payout = dailyRecords.reduce(0) { $0 + $1.payout }
+            return (investment, payout)
         }
     }
 }
@@ -619,3 +835,10 @@ let previewContainer: ModelContainer = {
     samples.forEach { context.insert($0) }
     return container
 }()
+
+private enum AmountField: Hashable {
+    case investment
+    case payout
+    case editInvestment
+    case editPayout
+}
