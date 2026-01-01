@@ -195,8 +195,9 @@ struct RecordFormSection: View {
                 MarkCardCourseSelector(title: "競馬場名", selection: $formState.racecourse)
             }
             if showRaceNumber {
-                MarkCardRaceNumberSelector(title: "何レースか", selection: $formState.raceNumber)
+                MarkCardRaceNumberSelector(title: "レース番号", selection: $formState.raceNumber)
             }
+            MarkCardTicketTypeSelector(title: "式別", selection: $formState.ticketType)
             if showHorseNumber {
                 numberPicker(title: "馬番", selection: $formState.horseNumber, range: 1...18, unit: "番")
             }
@@ -242,9 +243,7 @@ struct RecordFormSection: View {
         }
     }
 
-    private var hasDetailedFields: Bool {
-        showRacecourse || showRaceNumber || showHorseNumber || showJockey || showHorseName || showRaceTime || showCourseSurface || showCourseDirection || showCourseLength || showWeather || showTrackCondition || showMemo
-    }
+    private var hasDetailedFields: Bool { true }
 }
 
 struct HistorySection: View {
@@ -374,7 +373,6 @@ struct EditRecordSheet: View {
                     }
 
                     VStack(alignment: .leading, spacing: 12) {
-                        pickerRow(title: "馬券種", selection: $editState.ticketType, options: TicketType.allCases)
                         pickerRow(title: "人気帯", selection: $editState.popularityBand, options: PopularityBand.allCases)
                         pickerRow(title: "レース格", selection: $editState.raceGrade, options: RaceGrade.allCases)
                         if showTimeSlot {
@@ -396,8 +394,9 @@ struct EditRecordSheet: View {
                                 MarkCardCourseSelector(title: "競馬場名", selection: $editState.racecourse)
                             }
                             if showRaceNumber || !existingRaceNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                MarkCardRaceNumberSelector(title: "何レースか", selection: $editState.raceNumber)
+                                MarkCardRaceNumberSelector(title: "レース番号", selection: $editState.raceNumber)
                             }
+                            MarkCardTicketTypeSelector(title: "式別", selection: $editState.ticketType)
                             if showHorseNumber || !existingHorseNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 numberPicker(title: "馬番", selection: $editState.horseNumber, range: 1...18, unit: "番")
                             }
@@ -487,24 +486,7 @@ struct EditRecordSheet: View {
         }
     }
 
-    private var hasDetailedFields: Bool {
-        showRacecourse
-            || showRaceNumber
-            || showHorseNumber
-            || showJockey
-            || showHorseName
-            || showRaceTime
-            || showCourseSurface
-            || showCourseDirection
-            || showCourseLength
-            || showWeather
-            || showTrackCondition
-            || showMemo
-            || !editState.jockeyName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            || !editState.horseName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            || !editState.raceTimeDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            || !editState.memo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
+    private var hasDetailedFields: Bool { true }
 
 }
 
@@ -691,6 +673,57 @@ private struct MarkCardCourseSelector: View {
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
                                     .stroke(selection == course ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+        }
+    }
+
+    private func verticalLabel(for text: String) -> String {
+        text.map { String($0) }.joined(separator: "\n")
+    }
+}
+
+private struct MarkCardTicketTypeSelector: View {
+    let title: String
+    @Binding var selection: TicketType
+
+    private let orderedTypes: [TicketType] = [
+        .win, .place, .bracketQuinella, .quinella, .exacta, .wide, .trio, .trifecta
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(orderedTypes) { type in
+                        Button {
+                            selection = type
+                        } label: {
+                            VStack(spacing: 6) {
+                                Text(verticalLabel(for: type.rawValue))
+                                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxHeight: .infinity)
+                            }
+                            .padding(.vertical, 5)
+                            .padding(.horizontal, 4)
+                            .frame(width: 24, height: 46)
+                            .background(selection == type ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
+                            .foregroundStyle(selection == type ? Color.white : Color.primary)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(selection == type ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
