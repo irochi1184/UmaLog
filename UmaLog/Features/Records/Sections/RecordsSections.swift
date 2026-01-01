@@ -195,7 +195,7 @@ struct RecordFormSection: View {
                 MarkCardCourseSelector(title: "競馬場名", selection: $formState.racecourse)
             }
             if showRaceNumber {
-                numberPicker(title: "何レースか", selection: $formState.raceNumber, range: 1...12, unit: "R")
+                MarkCardRaceNumberSelector(title: "何レースか", selection: $formState.raceNumber)
             }
             if showHorseNumber {
                 numberPicker(title: "馬番", selection: $formState.horseNumber, range: 1...18, unit: "番")
@@ -396,7 +396,7 @@ struct EditRecordSheet: View {
                                 MarkCardCourseSelector(title: "競馬場名", selection: $editState.racecourse)
                             }
                             if showRaceNumber || !existingRaceNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                numberPicker(title: "何レースか", selection: $editState.raceNumber, range: 1...12, unit: "R")
+                                MarkCardRaceNumberSelector(title: "何レースか", selection: $editState.raceNumber)
                             }
                             if showHorseNumber || !existingHorseNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 numberPicker(title: "馬番", selection: $editState.horseNumber, range: 1...18, unit: "番")
@@ -614,6 +614,48 @@ private func suggestionField(title: String, placeholder: String, text: Binding<S
     }
 }
 
+private struct MarkCardRaceNumberSelector: View {
+    let title: String
+    @Binding var selection: Int
+
+    private let numbers: [Int] = Array(1...12)
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(numbers, id: \.self) { number in
+                        Button {
+                            selection = number
+                        } label: {
+                            Text("\(number)")
+                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .padding(.vertical, 5)
+                                .padding(.horizontal, 4)
+                                .frame(width: 20, height: 46)
+                                .background(selection == number ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
+                                .foregroundStyle(selection == number ? Color.white : Color.primary)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(selection == number ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+        }
+    }
+}
+
 private struct MarkCardCourseSelector: View {
     let title: String
     @Binding var selection: Racecourse
@@ -635,15 +677,15 @@ private struct MarkCardCourseSelector: View {
                         Button {
                             selection = course
                         } label: {
-                            VStack(spacing: 8) {
+                            VStack(spacing: 6) {
                                 Text(verticalLabel(for: course.rawValue))
-                                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                    .font(.system(size: 10, weight: .semibold, design: .rounded))
                                     .multilineTextAlignment(.center)
                                     .frame(maxHeight: .infinity)
                             }
-                            .padding(.vertical, 10)
-                            .padding(.horizontal, 8)
-                            .frame(width: 48, height: 92)
+                            .padding(.vertical, 5)
+                            .padding(.horizontal, 4)
+                            .frame(width: 24, height: 46)
                             .background(selection == course ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
                             .foregroundStyle(selection == course ? Color.white : Color.primary)
                             .overlay(
