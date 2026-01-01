@@ -167,9 +167,9 @@ struct RecordFormSection: View {
     }
 
     private var formAmounts: some View {
-        HStack(spacing: 12) {
-            amountField(title: "投資額", placeholder: "例: 1200", text: $formState.investmentText, focus: .investment, focusedAmountField: $focusedAmountField)
-            amountField(title: "払戻額", placeholder: "例: 800", text: $formState.payoutText, focus: .payout, focusedAmountField: $focusedAmountField)
+        VStack(spacing: 12) {
+            amountField(title: "投資額（必須）", placeholder: "例: 1200", text: $formState.investmentText, focus: .investment, focusedAmountField: $focusedAmountField)
+            amountField(title: "払戻額（任意・未入力は0円）", placeholder: "例: 800", text: $formState.payoutText, focus: .payout, focusedAmountField: $focusedAmountField)
         }
     }
 
@@ -186,49 +186,49 @@ struct RecordFormSection: View {
             if showTimeSlot {
                 pickerRow(title: "時間帯（任意）", selection: $formState.timeSlot, options: TimeSlot.allCases)
             }
-            MarkCardTicketTypeSelector(title: "式別", selection: $formState.ticketType)
+            MarkCardTicketTypeSelector(title: "式別（必須）", selection: $formState.ticketType)
             if showHorseNumber {
                 MarkCardHorseNumberSelector(
-                    title: "馬番",
+                    title: "馬番（任意）",
                     selection: $formState.horseNumbers,
                     maxSelection: formState.ticketType.requiredHorseSelections,
                     isBracket: formState.ticketType == .bracketQuinella
                 )
             }
             if showJockey {
-                suggestionField(title: "騎手", placeholder: "例: C.ルメール", text: $formState.jockeyName, suggestions: jockeySuggestions)
+                suggestionField(title: "騎手（任意）", placeholder: "例: C.ルメール", text: $formState.jockeyName, suggestions: jockeySuggestions)
             }
             if showHorseName {
-                suggestionField(title: "馬名", placeholder: "例: ○○エース", text: $formState.horseName, suggestions: horseSuggestions)
+                suggestionField(title: "馬名（任意）", placeholder: "例: ○○エース", text: $formState.horseName, suggestions: horseSuggestions)
             }
             if showCourseSurface {
-                selectionPicker(title: "コース（芝・ダートなど）", selection: $formState.courseSurface, options: CourseSurface.allCases) {
+                selectionPicker(title: "コース（任意・芝・ダートなど）", selection: $formState.courseSurface, options: CourseSurface.allCases) {
                     Text($0.rawValue).tag($0)
                 }
             }
             if showCourseDirection {
-                selectionPicker(title: "コースの向き", selection: $formState.courseDirection, options: CourseDirection.allCases) {
+                selectionPicker(title: "コースの向き（任意）", selection: $formState.courseDirection, options: CourseDirection.allCases) {
                     Text($0.rawValue).tag($0)
                 }
             }
             if showCourseLength {
-                selectionPicker(title: "コースの長さ", selection: $formState.courseLength, options: courseLengthOptions) {
+                selectionPicker(title: "コースの長さ（任意）", selection: $formState.courseLength, options: courseLengthOptions) {
                     Text(courseDistanceFormatter($0)).tag($0)
                 }
             }
             if showWeather {
-                selectionPicker(title: "天気", selection: $formState.weather, options: Weather.allCases) {
+                selectionPicker(title: "天気（任意）", selection: $formState.weather, options: Weather.allCases) {
                     Text($0.rawValue).tag($0)
                 }
             }
             if showTrackCondition {
-                selectionPicker(title: "馬場状態", selection: $formState.trackCondition, options: TrackCondition.allCases) {
+                selectionPicker(title: "馬場状態（任意）", selection: $formState.trackCondition, options: TrackCondition.allCases) {
                     Text($0.rawValue).tag($0)
                 }
             }
-            pickerRow(title: "レース格", selection: $formState.raceGrade, options: RaceGrade.allCases)
+            pickerRow(title: "レース格（任意）", selection: $formState.raceGrade, options: RaceGrade.allCases)
             if showMemo {
-                detailTextField(title: "ひと言メモ", placeholder: "例: スタートで出負け", text: $formState.memo)
+                detailTextField(title: "ひと言メモ（任意）", placeholder: "例: スタートで出負け", text: $formState.memo)
             }
         }
     }
@@ -366,7 +366,7 @@ struct EditRecordSheet: View {
                         if showTimeSlot {
                             pickerRow(title: "時間帯（任意）", selection: $editState.timeSlot, options: TimeSlot.allCases)
                         }
-                        MarkCardTicketTypeSelector(title: "式別", selection: $editState.ticketType)
+                        MarkCardTicketTypeSelector(title: "式別（必須）", selection: $editState.ticketType)
                     }
 
                     HStack(spacing: 12) {
@@ -388,46 +388,46 @@ struct EditRecordSheet: View {
                             MarkCardTicketTypeSelector(title: "式別", selection: $editState.ticketType)
                             if showHorseNumber || !existingHorseNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 MarkCardHorseNumberSelector(
-                                    title: "馬番",
+                                    title: "馬番（任意）",
                                     selection: $editState.horseNumbers,
                                     maxSelection: editState.ticketType.requiredHorseSelections,
                                     isBracket: editState.ticketType == .bracketQuinella
                                 )
                             }
                             if showJockey || !editState.jockeyName.isEmpty {
-                                suggestionField(title: "騎手", placeholder: "例: C.ルメール", text: $editState.jockeyName, suggestions: jockeySuggestions)
+                                suggestionField(title: "騎手（任意）", placeholder: "例: C.ルメール", text: $editState.jockeyName, suggestions: jockeySuggestions)
                             }
                             if showHorseName || !editState.horseName.isEmpty {
-                                suggestionField(title: "馬名", placeholder: "例: ○○エース", text: $editState.horseName, suggestions: horseSuggestions)
+                                suggestionField(title: "馬名（任意）", placeholder: "例: ○○エース", text: $editState.horseName, suggestions: horseSuggestions)
                             }
                             if showCourseSurface {
-                                selectionPicker(title: "コース（芝・ダートなど）", selection: $editState.courseSurface, options: CourseSurface.allCases) {
+                                selectionPicker(title: "コース（任意・芝・ダートなど）", selection: $editState.courseSurface, options: CourseSurface.allCases) {
                                     Text($0.rawValue).tag($0)
                                 }
                             }
                             if showCourseDirection {
-                                selectionPicker(title: "コースの向き", selection: $editState.courseDirection, options: CourseDirection.allCases) {
+                                selectionPicker(title: "コースの向き（任意）", selection: $editState.courseDirection, options: CourseDirection.allCases) {
                                     Text($0.rawValue).tag($0)
                                 }
                             }
                             if showCourseLength || !existingCourseLength.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                selectionPicker(title: "コースの長さ", selection: $editState.courseLength, options: courseLengthOptions) {
+                                selectionPicker(title: "コースの長さ（任意）", selection: $editState.courseLength, options: courseLengthOptions) {
                                     Text(courseDistanceFormatter($0)).tag($0)
                                 }
                             }
                             if showWeather {
-                                selectionPicker(title: "天気", selection: $editState.weather, options: Weather.allCases) {
+                                selectionPicker(title: "天気（任意）", selection: $editState.weather, options: Weather.allCases) {
                                     Text($0.rawValue).tag($0)
                                 }
                             }
                             if showTrackCondition {
-                                selectionPicker(title: "馬場状態", selection: $editState.trackCondition, options: TrackCondition.allCases) {
+                                selectionPicker(title: "馬場状態（任意）", selection: $editState.trackCondition, options: TrackCondition.allCases) {
                                     Text($0.rawValue).tag($0)
                                 }
                             }
-                            pickerRow(title: "レース格", selection: $editState.raceGrade, options: RaceGrade.allCases)
+                            pickerRow(title: "レース格（任意）", selection: $editState.raceGrade, options: RaceGrade.allCases)
                             if showMemo || !existingMemo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                detailTextField(title: "ひと言メモ", placeholder: "例: スタートで出負け", text: $editState.memo)
+                                detailTextField(title: "ひと言メモ（任意）", placeholder: "例: スタートで出負け", text: $editState.memo)
                             }
                         }
                     }

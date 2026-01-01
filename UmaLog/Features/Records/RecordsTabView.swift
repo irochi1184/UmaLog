@@ -275,9 +275,9 @@ struct RecordsTabView: View {
 
     private func addRecord() {
         guard
-            let investment = AmountFormatting.parseAmount(formState.investmentText),
-            let payout = AmountFormatting.parseAmount(formState.payoutText)
+            let investment = AmountFormatting.parseAmount(formState.investmentText)
         else { return }
+        let payout = AmountFormatting.parseAmount(formState.payoutText) ?? 0
 
         normalizeHorseSelection(maxSelection: formState.ticketType.requiredHorseSelections)
 
@@ -329,9 +329,9 @@ struct RecordsTabView: View {
     private func saveEditing() {
         guard
             let record = editState.record,
-            let investment = AmountFormatting.parseAmount(editState.investmentText),
-            let payout = AmountFormatting.parseAmount(editState.payoutText)
+            let investment = AmountFormatting.parseAmount(editState.investmentText)
         else { return }
+        let payout = AmountFormatting.parseAmount(editState.payoutText) ?? 0
 
         normalizeEditHorseSelection(maxSelection: editState.ticketType.requiredHorseSelections)
 
