@@ -46,7 +46,7 @@ struct RecordsTabView: View {
                             records: records,
                             historyDateFormatter: historyDateFormatter,
                             cardBackground: cardBackground,
-                            currency: AmountFormatting.currency,
+                            currency: { AmountFormatting.currency($0) },
                             startEditing: startEditing(_:)
                         )
                     }

@@ -215,8 +215,3 @@ struct CalendarTabView: View {
         calendar.date(from: calendar.dateComponents([.year, .month], from: date)) ?? date
     }
 }
-
-#Preview {
-    CalendarTabView(records: [])
-        .modelContainer(previewContainer)
-}
