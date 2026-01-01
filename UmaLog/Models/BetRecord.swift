@@ -82,7 +82,7 @@ final class BetRecord {
     }
 }
 
-enum TicketType: String, CaseIterable, Codable, Identifiable, Hashable {
+enum TicketType: String, Codable, Identifiable, Hashable {
     case win = "単勝"
     case place = "複勝"
     case bracketQuinella = "枠連"
@@ -91,8 +91,40 @@ enum TicketType: String, CaseIterable, Codable, Identifiable, Hashable {
     case wide = "ワイド"
     case trio = "3連複"
     case trifecta = "3連単"
+    case legacyTrio = "三連系"
 
     var id: String { rawValue }
+
+    static let allCases: [TicketType] = [
+        .win, .place, .bracketQuinella, .quinella, .exacta, .wide, .trio, .trifecta
+    ]
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let value = try container.decode(String.self)
+        switch value {
+        case TicketType.win.rawValue:
+            self = .win
+        case TicketType.place.rawValue:
+            self = .place
+        case TicketType.bracketQuinella.rawValue:
+            self = .bracketQuinella
+        case TicketType.quinella.rawValue:
+            self = .quinella
+        case TicketType.exacta.rawValue:
+            self = .exacta
+        case TicketType.wide.rawValue:
+            self = .wide
+        case TicketType.trio.rawValue:
+            self = .trio
+        case TicketType.trifecta.rawValue:
+            self = .trifecta
+        case TicketType.legacyTrio.rawValue:
+            self = .trio
+        default:
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unknown TicketType value: \(value)")
+        }
+    }
 }
 
 enum PopularityBand: String, CaseIterable, Codable, Identifiable, Hashable {
