@@ -723,7 +723,8 @@ struct ContentView: View {
     }
 
     private func calendarCell(for date: Date) -> some View {
-        let net = dailyNetTotals[calendar.startOfDay(for: date)]
+        let totals = dailyTotals[calendar.startOfDay(for: date)]
+        let net = totals.map { $0.payout - $0.investment }
         let isToday = calendar.isDateInToday(date)
         let background: Color
 
@@ -737,14 +738,26 @@ struct ContentView: View {
             Text("\(calendar.component(.day, from: date))")
                 .font(.headline)
 
-            if let net {
-                let absNet = abs(net)
-                Text(currency(absNet))
+            if let totals {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.down.right")
+                        Text(currency(totals.investment))
+                    }
                     .font(.caption2.weight(.semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(net >= 0 ? Color.green : Color.red)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
+
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.up.right")
+                        Text(currency(totals.payout))
+                    }
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.green)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                }
             } else {
                 Text("—")
                     .font(.caption)
@@ -760,12 +773,14 @@ struct ContentView: View {
         )
     }
 
-    private var dailyNetTotals: [Date: Double] {
+    private var dailyTotals: [Date: (investment: Double, payout: Double)] {
         Dictionary(grouping: records) { record in
             calendar.startOfDay(for: record.createdAt)
         }
         .mapValues { dailyRecords in
-            dailyRecords.reduce(0) { $0 + $1.netProfit }
+            let investment = dailyRecords.reduce(0) { $0 + $1.investment }
+            let payout = dailyRecords.reduce(0) { $0 + $1.payout }
+            return (investment, payout)
         }
     }
 }
