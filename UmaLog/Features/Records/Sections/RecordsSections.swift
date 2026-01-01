@@ -749,10 +749,10 @@ private struct MarkCardHorseNumberSelector: View {
                                     .background(Color.white.opacity(0.9))
                                     .foregroundStyle(Color("MainGreen", bundle: .main))
                                     .clipShape(Circle())
-                                    .offset(x: -2, y: -2)
+                                    .offset(x: 2, y: 0)
                             }
                         }
-                        .frame(width: 20, height: 46)
+                        .frame(width: 22, height: 46)
                         .background(isSelected(number: number, rowTag: rowTag) ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
                         .foregroundStyle(isSelected(number: number, rowTag: rowTag) ? Color.white : Color.primary)
                         .overlay(
