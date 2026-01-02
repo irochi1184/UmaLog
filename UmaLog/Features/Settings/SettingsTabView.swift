@@ -90,7 +90,7 @@ struct SettingsTabView: View {
 
             VStack(spacing: 12) {
                 toggleRow(title: "競馬場名", isOn: $showRacecourseField)
-                toggleRow(title: "何レースか", isOn: $showRaceNumberField)
+                toggleRow(title: "レース番号", isOn: $showRaceNumberField)
                 toggleRow(title: "馬番", isOn: $showHorseNumberField)
                 toggleRow(title: "騎手", isOn: $showJockeyField)
                 toggleRow(title: "馬名", isOn: $showHorseNameField)
