@@ -154,13 +154,9 @@ struct RecordFormSection: View {
 
     private var dateField: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("日付（自動で今日をセット）")
-                .font(.caption)
-                .foregroundStyle(.secondary)
             DatePicker("日付", selection: $formState.selectedDate, displayedComponents: .date)
                 .datePickerStyle(.compact)
                 .environment(\.locale, datePickerLocale)
-                .disabled(true)
                 .opacity(0.7)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -169,14 +165,14 @@ struct RecordFormSection: View {
     private var formAmounts: some View {
         VStack(spacing: 12) {
             amountField(title: "投資額（必須）", placeholder: "例: 1200", text: $formState.investmentText, focus: .investment, focusedAmountField: $focusedAmountField)
-            amountField(title: "払戻額（任意・未入力は0円）", placeholder: "例: 800", text: $formState.payoutText, focus: .payout, focusedAmountField: $focusedAmountField)
+            amountField(title: "払戻額（任意）", placeholder: "例: 800", text: $formState.payoutText, focus: .payout, focusedAmountField: $focusedAmountField)
         }
     }
 
     private var detailFields: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("必要に応じて自由に残せる項目")
-                .font(.subheadline.weight(.semibold))
+//            Text("必要に応じて自由に残せる項目")
+//                .font(.subheadline.weight(.semibold))
             if showRacecourse {
                 MarkCardCourseSelector(title: "競馬場名", selection: $formState.racecourse)
             }
@@ -186,7 +182,7 @@ struct RecordFormSection: View {
             if showTimeSlot {
                 pickerRow(title: "時間帯（任意）", selection: $formState.timeSlot, options: TimeSlot.allCases)
             }
-            MarkCardTicketTypeSelector(title: "式別（必須）", selection: $formState.ticketType)
+            MarkCardTicketTypeSelector(title: "式別", selection: $formState.ticketType)
             if showHorseNumber {
                 MarkCardHorseNumberSelector(
                     title: "馬番（任意）",
@@ -729,10 +725,10 @@ private struct MarkCardHorseNumberSelector: View {
                                     .background(Color.white.opacity(0.9))
                                     .foregroundStyle(Color("MainGreen", bundle: .main))
                                     .clipShape(Circle())
-                                    .offset(x: -2, y: -2)
+                                    .offset(x: 2, y: 0)
                             }
                         }
-                        .frame(width: 20, height: 46)
+                        .frame(width: 22, height: 46)
                         .background(isSelected(number: number, rowTag: rowTag) ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
                         .foregroundStyle(isSelected(number: number, rowTag: rowTag) ? Color.white : Color.primary)
                         .overlay(
