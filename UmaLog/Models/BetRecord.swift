@@ -17,7 +17,7 @@ final class BetRecord {
     var investment: Double
     var payout: Double
     var racecourse: String?
-    var raceNumber: String
+    var raceNumber: String?
     var horseNumber: String?
     var jockeyName: String?
     var horseName: String?
@@ -37,7 +37,7 @@ final class BetRecord {
         investment: Double,
         payout: Double,
         racecourse: String? = nil,
-        raceNumber: String,
+        raceNumber: String? = nil,
         horseNumber: String? = nil,
         jockeyName: String? = nil,
         horseName: String? = nil,
@@ -76,6 +76,10 @@ final class BetRecord {
     var returnRate: Double {
         guard investment > 0 else { return 0 }
         return (payout / investment) * 100
+    }
+
+    var raceNumberText: String {
+        raceNumber?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     }
 }
 

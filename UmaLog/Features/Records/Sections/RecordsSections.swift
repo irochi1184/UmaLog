@@ -243,12 +243,13 @@ struct HistorySection: View {
             } else {
                 VStack(spacing: 12) {
                     ForEach(records) { record in
+                        let raceNumberText = record.raceNumberText.isEmpty ? "?" : record.raceNumberText
                         Button {
                             startEditing(record)
                         } label: {
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack {
-                                    Text("レース\(record.raceNumber) / \(record.popularityBand.rawValue)")
+                                    Text("レース\(raceNumberText) / \(record.popularityBand.rawValue)")
                                         .font(.headline)
                                     Spacer()
                                     Text(historyDateFormatter.string(from: record.createdAt))
@@ -315,7 +316,7 @@ struct EditRecordSheet: View {
     }
 
     private var existingRaceNumber: String {
-        editState.record?.raceNumber ?? ""
+        editState.record?.raceNumberText ?? ""
     }
 
     private var existingHorseNumber: String {
@@ -878,7 +879,7 @@ private func detailLines(for record: BetRecord) -> [String] {
 
     let placeLineComponents: [String] = [
         record.racecourse?.trimmingCharacters(in: .whitespacesAndNewlines),
-        record.raceNumber.trimmingCharacters(in: .whitespacesAndNewlines)
+        record.raceNumberText.trimmingCharacters(in: .whitespacesAndNewlines)
     ].compactMap { component in
         guard let component, !component.isEmpty else { return nil }
         return component

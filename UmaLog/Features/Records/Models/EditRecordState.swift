@@ -38,7 +38,7 @@ struct EditRecordState {
         payoutText = AmountFormatting.plainFormatter().string(from: NSNumber(value: record.payout)) ?? ""
         isPresented = true
         racecourse = record.racecourse.flatMap(Racecourse.init(rawValue:)) ?? .tokyo
-        raceNumber = Int(record.raceNumber) ?? 1
+        raceNumber = Int(record.raceNumberText) ?? 1
         horseNumbers = record.horseNumber?
             .split(whereSeparator: { $0 == "," || $0 == "-" || $0 == "/" || $0 == "・" })
             .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) } ?? []
