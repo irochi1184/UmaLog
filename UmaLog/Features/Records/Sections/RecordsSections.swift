@@ -74,26 +74,26 @@ struct AnalysisSection: View {
     let cardBackground: Color
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("今日の気づき")
-                .font(.headline)
-                .foregroundStyle(.white)
-
-            if let pattern {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(pattern.message)
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(.primary)
-                    Text("同じ買い方で \(pattern.count) 件記録。回収率 \(pattern.returnRateString)。")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .padding()
-                .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
-            } else {
-                placeholderCard(text: "まだ記録がありません。まずは1レース、30秒で記録してみましょう。")
-            }
-        }
+//        VStack(alignment: .leading, spacing: 12) {
+//            Text("今日の気づき")
+//                .font(.headline)
+//                .foregroundStyle(.white)
+//
+//            if let pattern {
+//                VStack(alignment: .leading, spacing: 8) {
+//                    Text(pattern.message)
+//                        .font(.title3.weight(.semibold))
+//                        .foregroundStyle(.primary)
+//                    Text("同じ買い方で \(pattern.count) 件記録。回収率 \(pattern.returnRateString)。")
+//                        .font(.subheadline)
+//                        .foregroundStyle(.secondary)
+//                }
+//                .padding()
+//                .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
+//            } else {
+//                placeholderCard(text: "まだ記録がありません。まずは1レース、30秒で記録してみましょう。")
+//            }
+//        }
     }
 }
 
