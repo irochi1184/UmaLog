@@ -249,7 +249,7 @@ struct HistorySection: View {
                         } label: {
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack {
-                                    Text("レース\(raceNumberText) / \(record.popularityBand.rawValue)")
+                                    Text("\(raceNumberText)R / \(record.popularityBand.rawValue)")
                                         .font(.headline)
                                     Spacer()
                                     Text(historyDateFormatter.string(from: record.createdAt))
@@ -367,7 +367,7 @@ struct EditRecordSheet: View {
                             if showRacecourse || !existingRacecourse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 MarkCardCourseSelector(title: "競馬場名", selection: $editState.racecourse)
                             }
-                            MarkCardRaceNumberSelector(title: "レース番号（必須）", selection: $editState.raceNumber)
+                            MarkCardRaceNumberSelector(title: "レース番号", selection: $editState.raceNumber)
                             MarkCardTicketTypeSelector(title: "式別", selection: $editState.ticketType)
                             if showHorseNumber || !existingHorseNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 MarkCardHorseNumberSelector(
