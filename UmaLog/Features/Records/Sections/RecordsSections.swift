@@ -244,22 +244,26 @@ struct HistorySection: View {
                 VStack(spacing: 12) {
                     ForEach(records) { record in
                         let raceNumberText = record.raceNumberText.isEmpty ? "?" : record.raceNumberText
+                        let racecourseText = record.racecourse?.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let horseNumberText = record.horseNumber?.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let placeTitle = [
+                            racecourseText?.isEmpty == false ? racecourseText! : "競馬場未設定",
+                            "\(raceNumberText)R(\(record.raceGrade.rawValue))",
+                            "\(record.ticketType.rawValue) \(horseNumberText?.isEmpty == false ? horseNumberText! : \"馬番未設定\")"
+                        ].joined(separator: " / ")
                         Button {
                             startEditing(record)
                         } label: {
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack {
-                                    Text("\(raceNumberText)R / \(record.popularityBand.rawValue)")
+                                    Text(placeTitle)
                                         .font(.headline)
                                     Spacer()
                                     Text(historyDateFormatter.string(from: record.createdAt))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
-                                Text("\(record.ticketType.rawValue)・\(record.raceGrade.rawValue)")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                ForEach(Array(detailLines(for: record).prefix(2).enumerated()), id: \.offset) { _, line in
+                                ForEach(Array(detailLines(for: record).enumerated()), id: \.offset) { _, line in
                                     Text(line)
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
@@ -877,21 +881,9 @@ private func placeholderCard(text: String) -> some View {
 private func detailLines(for record: BetRecord) -> [String] {
     var lines: [String] = []
 
-    let placeLineComponents: [String] = [
-        record.racecourse?.trimmingCharacters(in: .whitespacesAndNewlines),
-        record.raceNumberText.trimmingCharacters(in: .whitespacesAndNewlines)
-    ].compactMap { component in
-        guard let component, !component.isEmpty else { return nil }
-        return component
-    }
-    let placeLine = placeLineComponents
-        .filter { !$0.isEmpty }
-        .joined(separator: " / ")
-    if !placeLine.isEmpty {
-        lines.append(placeLine)
-    }
+    lines.append(record.popularityBand.rawValue)
 
-    let horseLine = [record.horseNumber.map { "\($0)" }, record.horseName, record.jockeyName]
+    let horseLine = [record.horseName, record.jockeyName]
         .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
         .filter { !$0.isEmpty }
         .joined(separator: " / ")
