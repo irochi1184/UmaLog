@@ -3,7 +3,6 @@ import SwiftUI
 struct SettingsTabView: View {
     @AppStorage("prefersQuickEntry") private var prefersQuickEntry = true
     @AppStorage("showRacecourseField") private var showRacecourseField = false
-    @AppStorage("showRaceNumberField") private var showRaceNumberField = false
     @AppStorage("showHorseNumberField") private var showHorseNumberField = false
     @AppStorage("showJockeyField") private var showJockeyField = false
     @AppStorage("showHorseNameField") private var showHorseNameField = false
@@ -90,7 +89,6 @@ struct SettingsTabView: View {
 
             VStack(spacing: 12) {
                 toggleRow(title: "競馬場名", isOn: $showRacecourseField)
-                toggleRow(title: "レース番号", isOn: $showRaceNumberField)
                 toggleRow(title: "馬番", isOn: $showHorseNumberField)
                 toggleRow(title: "騎手", isOn: $showJockeyField)
                 toggleRow(title: "馬名", isOn: $showHorseNameField)
@@ -114,9 +112,6 @@ struct SettingsTabView: View {
                 .foregroundStyle(.white)
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("発走予定をオンにすると時間帯の入力を自動で隠します。")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
                 Text("モードはいつでも切り替え可能です。入力途中でも設定から変えられます。")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -149,7 +144,6 @@ struct SettingsTabView: View {
 
     private func applyQuickPreset() {
         showRacecourseField = false
-        showRaceNumberField = false
         showHorseNumberField = false
         showJockeyField = false
         showHorseNameField = false
@@ -164,7 +158,6 @@ struct SettingsTabView: View {
 
     private func applyDetailedPreset() {
         showRacecourseField = true
-        showRaceNumberField = true
         showHorseNumberField = true
         showJockeyField = true
         showHorseNameField = true
