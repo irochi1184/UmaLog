@@ -174,7 +174,7 @@ struct RecordFormSection: View {
             if showRacecourse {
                 MarkCardCourseSelector(title: "競馬場名", selection: $formState.racecourse)
             }
-            MarkCardRaceNumberSelector(title: "レース番号（必須）", selection: $formState.raceNumber)
+            MarkCardRaceNumberSelector(title: "レース番号", selection: $formState.raceNumber)
             MarkCardTicketTypeSelector(title: "式別", selection: $formState.ticketType)
             if showHorseNumber {
                 MarkCardHorseNumberSelector(
