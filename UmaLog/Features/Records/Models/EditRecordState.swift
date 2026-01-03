@@ -6,7 +6,6 @@ struct EditRecordState {
     var ticketType: TicketType = .win
     var popularityBand: PopularityBand = .favorite
     var raceGrade: RaceGrade = .flat
-    var timeSlot: TimeSlot = .afternoon
     var investmentText: String = ""
     var payoutText: String = ""
     var isPresented: Bool = false
@@ -26,7 +25,7 @@ struct EditRecordState {
     var isValid: Bool {
         let investment = AmountFormatting.parseAmount(investmentText) ?? 0
         let payout = AmountFormatting.parseAmount(payoutText) ?? 0
-        return record != nil && investment > 0 && payout >= 0
+        return record != nil && investment > 0 && payout >= 0 && raceNumber > 0
     }
 
     mutating func load(from record: BetRecord) {
@@ -35,12 +34,11 @@ struct EditRecordState {
         ticketType = record.ticketType
         popularityBand = record.popularityBand
         raceGrade = record.raceGrade
-        timeSlot = record.timeSlot
         investmentText = AmountFormatting.plainFormatter().string(from: NSNumber(value: record.investment)) ?? ""
         payoutText = AmountFormatting.plainFormatter().string(from: NSNumber(value: record.payout)) ?? ""
         isPresented = true
         racecourse = record.racecourse.flatMap(Racecourse.init(rawValue:)) ?? .tokyo
-        raceNumber = Int(record.raceNumber ?? "") ?? 1
+        raceNumber = Int(record.raceNumber) ?? 1
         horseNumbers = record.horseNumber?
             .split(whereSeparator: { $0 == "," || $0 == "-" || $0 == "/" || $0 == "・" })
             .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) } ?? []

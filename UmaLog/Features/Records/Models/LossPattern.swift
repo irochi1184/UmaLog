@@ -1,7 +1,6 @@
 import Foundation
 
 struct LossPatternKey: Hashable {
-    let timeSlot: TimeSlot
     let popularityBand: PopularityBand
 }
 

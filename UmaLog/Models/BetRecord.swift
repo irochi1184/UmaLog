@@ -14,11 +14,10 @@ final class BetRecord {
     var ticketType: TicketType
     var popularityBand: PopularityBand
     var raceGrade: RaceGrade
-    var timeSlot: TimeSlot
     var investment: Double
     var payout: Double
     var racecourse: String?
-    var raceNumber: String?
+    var raceNumber: String
     var horseNumber: String?
     var jockeyName: String?
     var horseName: String?
@@ -35,11 +34,10 @@ final class BetRecord {
         ticketType: TicketType,
         popularityBand: PopularityBand,
         raceGrade: RaceGrade,
-        timeSlot: TimeSlot,
         investment: Double,
         payout: Double,
         racecourse: String? = nil,
-        raceNumber: String? = nil,
+        raceNumber: String,
         horseNumber: String? = nil,
         jockeyName: String? = nil,
         horseName: String? = nil,
@@ -55,7 +53,6 @@ final class BetRecord {
         self.ticketType = ticketType
         self.popularityBand = popularityBand
         self.raceGrade = raceGrade
-        self.timeSlot = timeSlot
         self.investment = investment
         self.payout = payout
         self.racecourse = racecourse
@@ -150,13 +147,6 @@ enum RaceGrade: String, CaseIterable, Codable, Identifiable, Hashable {
     case g1 = "G1"
     case graded = "重賞"
     case flat = "平場"
-
-    var id: String { rawValue }
-}
-
-enum TimeSlot: String, CaseIterable, Codable, Identifiable, Hashable {
-    case morning = "午前"
-    case afternoon = "午後"
 
     var id: String { rawValue }
 }

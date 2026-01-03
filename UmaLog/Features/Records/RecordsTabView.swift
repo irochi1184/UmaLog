@@ -12,7 +12,6 @@ struct RecordsTabView: View {
     @FocusState private var focusedAmountField: AmountField?
     @AppStorage("prefersQuickEntry") private var prefersQuickEntry = true
     @AppStorage("showRacecourseField") private var showRacecourseField = false
-    @AppStorage("showRaceNumberField") private var showRaceNumberField = false
     @AppStorage("showHorseNumberField") private var showHorseNumberField = false
     @AppStorage("showJockeyField") private var showJockeyField = false
     @AppStorage("showHorseNameField") private var showHorseNameField = false
@@ -55,7 +54,6 @@ struct RecordsTabView: View {
                             focusedAmountField: $focusedAmountField,
                             prefersQuickEntry: prefersQuickEntry,
                             showRacecourse: showRacecourseField,
-                            showRaceNumber: showRaceNumberField,
                             showHorseNumber: showHorseNumberField,
                             showJockey: showJockeyField,
                             showHorseName: showHorseNameField,
@@ -66,7 +64,6 @@ struct RecordsTabView: View {
                             showWeather: showWeatherField,
                             showTrackCondition: showTrackConditionField,
                             showMemo: showMemoField,
-                            showTimeSlot: !showRaceTimeField,
                             fiveMinuteOptions: fiveMinuteOptions,
                             courseLengthOptions: RaceDistance.allCases,
                             courseDistanceFormatter: { $0.display },
@@ -101,7 +98,6 @@ struct RecordsTabView: View {
                     datePickerLocale: datePickerLocale,
                     focusedAmountField: $focusedAmountField,
                     showRacecourse: showRacecourseField,
-                    showRaceNumber: showRaceNumberField,
                     showHorseNumber: showHorseNumberField,
                     showJockey: showJockeyField,
                     showHorseName: showHorseNameField,
@@ -112,7 +108,6 @@ struct RecordsTabView: View {
                     showWeather: showWeatherField,
                     showTrackCondition: showTrackConditionField,
                     showMemo: showMemoField,
-                    showTimeSlot: !showRaceTimeField,
                     fiveMinuteOptions: fiveMinuteOptions,
                     courseLengthOptions: RaceDistance.allCases,
                     courseDistanceFormatter: { $0.display },
@@ -169,7 +164,7 @@ struct RecordsTabView: View {
     }
 
     private var isValidInput: Bool {
-        (AmountFormatting.parseAmount(formState.investmentText) ?? 0) > 0
+        (AmountFormatting.parseAmount(formState.investmentText) ?? 0) > 0 && formState.raceNumber > 0
     }
 
     private var returnRateText: String {
@@ -203,7 +198,6 @@ struct RecordsTabView: View {
 
         let grouped = Dictionary(grouping: records) {
             LossPatternKey(
-                timeSlot: $0.timeSlot,
                 popularityBand: $0.popularityBand
             )
         }
@@ -215,7 +209,7 @@ struct RecordsTabView: View {
             guard loss > 0 else { return nil }
 
             let returnRate = invest > 0 ? (payout / invest) * 100 : 0
-            let message = "\(key.timeSlot.rawValue) × \(key.popularityBand.rawValue) が最も負けています"
+            let message = "\(key.popularityBand.rawValue) で最も負けています"
 
             return LossPattern(
                 message: message,
@@ -291,11 +285,10 @@ struct RecordsTabView: View {
             ticketType: formState.ticketType,
             popularityBand: formState.popularityBand,
             raceGrade: formState.raceGrade,
-            timeSlot: formState.timeSlot,
             investment: investment,
             payout: payout,
             racecourse: optionalValue(formState.racecourse, isEnabled: showRacecourseField),
-            raceNumber: optionalValue(String(formState.raceNumber), isEnabled: showRaceNumberField),
+            raceNumber: String(formState.raceNumber),
             horseNumber: horseNumberText,
             jockeyName: optionalValue(formState.jockeyName, isEnabled: showJockeyField),
             horseName: optionalValue(formState.horseName, isEnabled: showHorseNameField),
@@ -340,11 +333,10 @@ struct RecordsTabView: View {
             record.ticketType = editState.ticketType
             record.popularityBand = editState.popularityBand
             record.raceGrade = editState.raceGrade
-            record.timeSlot = editState.timeSlot
             record.investment = investment
             record.payout = payout
             record.racecourse = preservedValue(from: editState.racecourse.rawValue, isEnabled: showRacecourseField, original: record.racecourse)
-            record.raceNumber = preservedValue(from: String(editState.raceNumber), isEnabled: showRaceNumberField, original: record.raceNumber)
+            record.raceNumber = String(editState.raceNumber)
             let horseNumberText = editState.horseNumbers.isEmpty ? nil : editState.horseNumbers.map(String.init).joined(separator: "-")
             record.horseNumber = preservedValue(from: horseNumberText ?? "", isEnabled: showHorseNumberField, original: record.horseNumber)
             record.jockeyName = preservedValue(from: editState.jockeyName, isEnabled: showJockeyField, original: record.jockeyName)

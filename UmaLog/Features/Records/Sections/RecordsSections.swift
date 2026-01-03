@@ -105,7 +105,6 @@ struct RecordFormSection: View {
     @FocusState.Binding var focusedAmountField: AmountField?
     let prefersQuickEntry: Bool
     let showRacecourse: Bool
-    let showRaceNumber: Bool
     let showHorseNumber: Bool
     let showJockey: Bool
     let showHorseName: Bool
@@ -116,7 +115,6 @@ struct RecordFormSection: View {
     let showWeather: Bool
     let showTrackCondition: Bool
     let showMemo: Bool
-    let showTimeSlot: Bool
     let fiveMinuteOptions: [String]
     let courseLengthOptions: [RaceDistance]
     let courseDistanceFormatter: (RaceDistance) -> String
@@ -176,12 +174,7 @@ struct RecordFormSection: View {
             if showRacecourse {
                 MarkCardCourseSelector(title: "競馬場名", selection: $formState.racecourse)
             }
-            if showRaceNumber {
-                MarkCardRaceNumberSelector(title: "レース番号", selection: $formState.raceNumber)
-            }
-            if showTimeSlot {
-                pickerRow(title: "時間帯（任意）", selection: $formState.timeSlot, options: TimeSlot.allCases)
-            }
+            MarkCardRaceNumberSelector(title: "レース番号（必須）", selection: $formState.raceNumber)
             MarkCardTicketTypeSelector(title: "式別", selection: $formState.ticketType)
             if showHorseNumber {
                 MarkCardHorseNumberSelector(
@@ -255,7 +248,7 @@ struct HistorySection: View {
                         } label: {
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack {
-                                    Text("\(record.timeSlot.rawValue) × \(record.popularityBand.rawValue)")
+                                    Text("レース\(record.raceNumber) / \(record.popularityBand.rawValue)")
                                         .font(.headline)
                                     Spacer()
                                     Text(historyDateFormatter.string(from: record.createdAt))
@@ -300,7 +293,6 @@ struct EditRecordSheet: View {
     let datePickerLocale: Locale
     @FocusState.Binding var focusedAmountField: AmountField?
     let showRacecourse: Bool
-    let showRaceNumber: Bool
     let showHorseNumber: Bool
     let showJockey: Bool
     let showHorseName: Bool
@@ -311,7 +303,6 @@ struct EditRecordSheet: View {
     let showWeather: Bool
     let showTrackCondition: Bool
     let showMemo: Bool
-    let showTimeSlot: Bool
     let fiveMinuteOptions: [String]
     let courseLengthOptions: [RaceDistance]
     let courseDistanceFormatter: (RaceDistance) -> String
@@ -359,9 +350,6 @@ struct EditRecordSheet: View {
                     }
 
                     VStack(alignment: .leading, spacing: 12) {
-                        if showTimeSlot {
-                            pickerRow(title: "時間帯（任意）", selection: $editState.timeSlot, options: TimeSlot.allCases)
-                        }
                         MarkCardTicketTypeSelector(title: "式別（必須）", selection: $editState.ticketType)
                     }
 
@@ -378,9 +366,7 @@ struct EditRecordSheet: View {
                             if showRacecourse || !existingRacecourse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 MarkCardCourseSelector(title: "競馬場名", selection: $editState.racecourse)
                             }
-                            if showRaceNumber || !existingRaceNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                MarkCardRaceNumberSelector(title: "レース番号", selection: $editState.raceNumber)
-                            }
+                            MarkCardRaceNumberSelector(title: "レース番号（必須）", selection: $editState.raceNumber)
                             MarkCardTicketTypeSelector(title: "式別", selection: $editState.ticketType)
                             if showHorseNumber || !existingHorseNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 MarkCardHorseNumberSelector(
@@ -890,8 +876,14 @@ private func placeholderCard(text: String) -> some View {
 private func detailLines(for record: BetRecord) -> [String] {
     var lines: [String] = []
 
-    let placeLine = [record.racecourse, record.raceNumber.map { "\($0)" }]
-        .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+    let placeLineComponents: [String] = [
+        record.racecourse?.trimmingCharacters(in: .whitespacesAndNewlines),
+        record.raceNumber.trimmingCharacters(in: .whitespacesAndNewlines)
+    ].compactMap { component in
+        guard let component, !component.isEmpty else { return nil }
+        return component
+    }
+    let placeLine = placeLineComponents
         .filter { !$0.isEmpty }
         .joined(separator: " / ")
     if !placeLine.isEmpty {
