@@ -248,8 +248,8 @@ struct HistorySection: View {
                         let horseNumberText = record.horseNumber?.trimmingCharacters(in: .whitespacesAndNewlines)
                         let placeTitle = [
                             racecourseText?.isEmpty == false ? racecourseText! : "競馬場未設定",
-                            "\(raceNumberText)R",
-                            horseNumberText?.isEmpty == false ? horseNumberText! : "?"
+                            "\(raceNumberText)R(\(record.raceGrade.rawValue))",
+                            "\(record.ticketType.rawValue) \(horseNumberText?.isEmpty == false ? horseNumberText! : \"馬番未設定\")"
                         ].joined(separator: " / ")
                         Button {
                             startEditing(record)
@@ -881,7 +881,6 @@ private func placeholderCard(text: String) -> some View {
 private func detailLines(for record: BetRecord) -> [String] {
     var lines: [String] = []
 
-    lines.append("\(record.ticketType.rawValue)・\(record.raceGrade.rawValue)")
     lines.append(record.popularityBand.rawValue)
 
     let horseLine = [record.horseName, record.jockeyName]
