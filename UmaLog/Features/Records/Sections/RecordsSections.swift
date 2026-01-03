@@ -162,8 +162,8 @@ struct RecordFormSection: View {
 
     private var formAmounts: some View {
         VStack(spacing: 12) {
-            amountField(title: "投資額（必須）", placeholder: "例: 1200", text: $formState.investmentText, focus: .investment, focusedAmountField: $focusedAmountField)
-            amountField(title: "払戻額（任意）", placeholder: "例: 800", text: $formState.payoutText, focus: .payout, focusedAmountField: $focusedAmountField)
+            amountField(title: "投資額", placeholder: "例: 1200", text: $formState.investmentText, focus: .investment, focusedAmountField: $focusedAmountField)
+            amountField(title: "払戻額", placeholder: "例: 800", text: $formState.payoutText, focus: .payout, focusedAmountField: $focusedAmountField)
         }
     }
 
@@ -215,7 +215,7 @@ struct RecordFormSection: View {
                     Text($0.rawValue).tag($0)
                 }
             }
-            pickerRow(title: "レース格（任意）", selection: $formState.raceGrade, options: RaceGrade.allCases)
+            pickerRow(title: "レース格", selection: $formState.raceGrade, options: RaceGrade.allCases)
             if showMemo {
                 detailTextField(title: "ひと言メモ（任意）", placeholder: "例: スタートで出負け", text: $formState.memo)
             }
@@ -408,7 +408,7 @@ struct EditRecordSheet: View {
                                     Text($0.rawValue).tag($0)
                                 }
                             }
-                            pickerRow(title: "レース格（任意）", selection: $editState.raceGrade, options: RaceGrade.allCases)
+                            pickerRow(title: "レース格", selection: $editState.raceGrade, options: RaceGrade.allCases)
                             if showMemo || !existingMemo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 detailTextField(title: "ひと言メモ（任意）", placeholder: "例: スタートで出負け", text: $editState.memo)
                             }
