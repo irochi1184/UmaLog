@@ -228,8 +228,8 @@ struct RecordsTabView: View {
         return trimmed.isEmpty ? nil : trimmed
     }
 
-    private func optionalValue<Value: RawRepresentable>(_ value: Value, isEnabled: Bool) -> String? where Value.RawValue == String {
-        guard isEnabled else { return nil }
+    private func optionalValue<Value: RawRepresentable>(_ value: Value?, isEnabled: Bool) -> String? where Value.RawValue == String {
+        guard isEnabled, let value else { return nil }
         return value.rawValue
     }
 
@@ -252,6 +252,11 @@ struct RecordsTabView: View {
         } else {
             return original
         }
+    }
+
+    private func preservedValue<Value: RawRepresentable>(from value: Value?, isEnabled: Bool, original: String?) -> String? where Value.RawValue == String {
+        guard isEnabled else { return original }
+        return value?.rawValue
     }
 
     private var toastView: some View {
@@ -342,11 +347,11 @@ struct RecordsTabView: View {
             record.jockeyName = preservedValue(from: editState.jockeyName, isEnabled: showJockeyField, original: record.jockeyName)
             record.horseName = preservedValue(from: editState.horseName, isEnabled: showHorseNameField, original: record.horseName)
             record.raceTimeDetail = preservedValue(from: editState.raceTimeDetail, isEnabled: showRaceTimeField, original: record.raceTimeDetail)
-            record.courseSurface = preservedValue(from: editState.courseSurface.rawValue, isEnabled: showCourseSurfaceField, original: record.courseSurface)
-            record.courseDirection = preservedValue(from: editState.courseDirection.rawValue, isEnabled: showCourseDirectionField, original: record.courseDirection)
-            record.courseLength = preservedValue(from: editState.courseLength.rawValue, isEnabled: showCourseLengthField, original: record.courseLength)
-            record.weather = preservedValue(from: editState.weather.rawValue, isEnabled: showWeatherField, original: record.weather)
-            record.trackCondition = preservedValue(from: editState.trackCondition.rawValue, isEnabled: showTrackConditionField, original: record.trackCondition)
+            record.courseSurface = preservedValue(from: editState.courseSurface, isEnabled: showCourseSurfaceField, original: record.courseSurface)
+            record.courseDirection = preservedValue(from: editState.courseDirection, isEnabled: showCourseDirectionField, original: record.courseDirection)
+            record.courseLength = preservedValue(from: editState.courseLength, isEnabled: showCourseLengthField, original: record.courseLength)
+            record.weather = preservedValue(from: editState.weather, isEnabled: showWeatherField, original: record.weather)
+            record.trackCondition = preservedValue(from: editState.trackCondition, isEnabled: showTrackConditionField, original: record.trackCondition)
             record.memo = preservedValue(from: editState.memo, isEnabled: showMemoField, original: record.memo)
             focusedAmountField = nil
             editState.isPresented = false

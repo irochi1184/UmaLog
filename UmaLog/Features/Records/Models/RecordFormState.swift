@@ -13,11 +13,11 @@ struct RecordFormState {
     var jockeyName: String = ""
     var horseName: String = ""
     var raceTimeDetail: String = ""
-    var courseSurface: CourseSurface = .turf
-    var courseDirection: CourseDirection = .right
-    var courseLength: RaceDistance = .m1600
-    var weather: Weather = .sunny
-    var trackCondition: TrackCondition = .good
+    var courseSurface: CourseSurface? = nil
+    var courseDirection: CourseDirection? = nil
+    var courseLength: RaceDistance? = nil
+    var weather: Weather? = nil
+    var trackCondition: TrackCondition? = nil
     var memo: String = ""
 
     mutating func resetAmounts() {
