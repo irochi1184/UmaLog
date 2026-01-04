@@ -178,36 +178,36 @@ struct RecordFormSection: View {
             MarkCardTicketTypeSelector(title: "式別", selection: $formState.ticketType)
             if showHorseNumber {
                 MarkCardHorseNumberSelector(
-                    title: "馬番（任意）",
+                    title: "馬番",
                     selection: $formState.horseNumbers,
                     maxSelection: formState.ticketType.requiredHorseSelections,
                     isBracket: formState.ticketType == .bracketQuinella
                 )
             }
             if showJockey {
-                suggestionField(title: "騎手（任意）", placeholder: "例: C.ルメール", text: $formState.jockeyName, suggestions: jockeySuggestions)
+                suggestionField(title: "騎手", placeholder: "例: C.ルメール", text: $formState.jockeyName, suggestions: jockeySuggestions)
             }
             if showHorseName {
-                suggestionField(title: "馬名（任意）", placeholder: "例: ○○エース", text: $formState.horseName, suggestions: horseSuggestions)
+                suggestionField(title: "馬名", placeholder: "例: ○○エース", text: $formState.horseName, suggestions: horseSuggestions)
             }
             if showCourseSurface {
                 toggleableSelectionButtons(title: "コース（任意・芝・ダートなど）", selection: $formState.courseSurface, options: CourseSurface.allCases, label: { $0.rawValue })
             }
             if showCourseDirection {
-                toggleableSelectionButtons(title: "コースの向き（任意）", selection: $formState.courseDirection, options: CourseDirection.allCases, label: { $0.rawValue })
+                toggleableSelectionButtons(title: "コースの向き", selection: $formState.courseDirection, options: CourseDirection.allCases, label: { $0.rawValue })
             }
             if showCourseLength {
-                toggleableSelectionButtons(title: "コースの長さ（任意）", selection: $formState.courseLength, options: courseLengthOptions, label: { courseDistanceFormatter($0) })
+                toggleableSelectionButtons(title: "コースの長さ", selection: $formState.courseLength, options: courseLengthOptions, label: { courseDistanceFormatter($0) })
             }
             if showWeather {
-                toggleableSelectionButtons(title: "天気（任意）", selection: $formState.weather, options: Weather.allCases, label: { $0.rawValue })
+                toggleableSelectionButtons(title: "天気", selection: $formState.weather, options: Weather.allCases, label: { $0.rawValue })
             }
             if showTrackCondition {
-                toggleableSelectionButtons(title: "馬場状態（任意）", selection: $formState.trackCondition, options: TrackCondition.allCases, label: { $0.rawValue })
+                toggleableSelectionButtons(title: "馬場状態", selection: $formState.trackCondition, options: TrackCondition.allCases, label: { $0.rawValue })
             }
             pickerRow(title: "レース格", selection: $formState.raceGrade, options: RaceGrade.allCases)
             if showMemo {
-                detailTextField(title: "ひと言メモ（任意）", placeholder: "例: スタートで出負け", text: $formState.memo)
+                detailTextField(title: "ひと言メモ", placeholder: "例: スタートで出負け", text: $formState.memo)
             }
         }
     }
@@ -356,7 +356,7 @@ struct EditRecordSheet: View {
                     if hasDetailedFields {
                         Divider()
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("詳細入力（任意）")
+                            Text("詳細入力")
                                 .font(.subheadline.weight(.semibold))
                             if showRacecourse || !existingRacecourse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 MarkCardCourseSelector(title: "競馬場名", selection: $editState.racecourse)
@@ -365,36 +365,36 @@ struct EditRecordSheet: View {
                             MarkCardTicketTypeSelector(title: "式別", selection: $editState.ticketType)
                             if showHorseNumber || !existingHorseNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 MarkCardHorseNumberSelector(
-                                    title: "馬番（任意）",
+                                    title: "馬番",
                                     selection: $editState.horseNumbers,
                                     maxSelection: editState.ticketType.requiredHorseSelections,
                                     isBracket: editState.ticketType == .bracketQuinella
                                 )
                             }
                             if showJockey || !editState.jockeyName.isEmpty {
-                                suggestionField(title: "騎手（任意）", placeholder: "例: C.ルメール", text: $editState.jockeyName, suggestions: jockeySuggestions)
+                                suggestionField(title: "騎手", placeholder: "例: C.ルメール", text: $editState.jockeyName, suggestions: jockeySuggestions)
                             }
                             if showHorseName || !editState.horseName.isEmpty {
-                                suggestionField(title: "馬名（任意）", placeholder: "例: ○○エース", text: $editState.horseName, suggestions: horseSuggestions)
+                                suggestionField(title: "馬名", placeholder: "例: ○○エース", text: $editState.horseName, suggestions: horseSuggestions)
                             }
                             if showCourseSurface {
                                 toggleableSelectionButtons(title: "コース（任意・芝・ダートなど）", selection: $editState.courseSurface, options: CourseSurface.allCases, label: { $0.rawValue })
                             }
                             if showCourseDirection {
-                                toggleableSelectionButtons(title: "コースの向き（任意）", selection: $editState.courseDirection, options: CourseDirection.allCases, label: { $0.rawValue })
+                                toggleableSelectionButtons(title: "コースの向き", selection: $editState.courseDirection, options: CourseDirection.allCases, label: { $0.rawValue })
                             }
                             if showCourseLength || !existingCourseLength.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                toggleableSelectionButtons(title: "コースの長さ（任意）", selection: $editState.courseLength, options: courseLengthOptions, label: { courseDistanceFormatter($0) })
+                                toggleableSelectionButtons(title: "コースの長さ", selection: $editState.courseLength, options: courseLengthOptions, label: { courseDistanceFormatter($0) })
                             }
                             if showWeather {
-                                toggleableSelectionButtons(title: "天気（任意）", selection: $editState.weather, options: Weather.allCases, label: { $0.rawValue })
+                                toggleableSelectionButtons(title: "天気", selection: $editState.weather, options: Weather.allCases, label: { $0.rawValue })
                             }
                             if showTrackCondition {
-                                toggleableSelectionButtons(title: "馬場状態（任意）", selection: $editState.trackCondition, options: TrackCondition.allCases, label: { $0.rawValue })
+                                toggleableSelectionButtons(title: "馬場状態", selection: $editState.trackCondition, options: TrackCondition.allCases, label: { $0.rawValue })
                             }
                             pickerRow(title: "レース格", selection: $editState.raceGrade, options: RaceGrade.allCases)
                             if showMemo || !existingMemo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                detailTextField(title: "ひと言メモ（任意）", placeholder: "例: スタートで出負け", text: $editState.memo)
+                                detailTextField(title: "ひと言メモ", placeholder: "例: スタートで出負け", text: $editState.memo)
                             }
                         }
                     }
@@ -515,7 +515,7 @@ private func toggleableSelectionButtons<Option: Identifiable & Hashable>(
     options: [Option],
     label: @escaping (Option) -> String
 ) -> some View {
-    let columns: [GridItem] = [GridItem(.adaptive(minimum: 80), spacing: 8, alignment: .leading)]
+    let columns: [GridItem] = [GridItem(.adaptive(minimum: 60), spacing: 8, alignment: .leading)]
 
     return VStack(alignment: .leading, spacing: 6) {
         Text(title)
