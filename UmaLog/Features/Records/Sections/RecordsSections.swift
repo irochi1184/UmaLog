@@ -249,7 +249,7 @@ struct HistorySection: View {
                         let placeTitle = [
                             racecourseText?.isEmpty == false ? racecourseText! : "競馬場未設定",
                             "\(raceNumberText)R(\(record.raceGrade.rawValue))",
-                            "\(record.ticketType.rawValue) \(horseNumberText?.isEmpty == false ? horseNumberText! : \"馬番未設定\")"
+                            "\(record.ticketType.rawValue) \(horseNumberText?.isEmpty == false ? horseNumberText! : "馬番未設定")"
                         ].joined(separator: " / ")
                         Button {
                             startEditing(record)
