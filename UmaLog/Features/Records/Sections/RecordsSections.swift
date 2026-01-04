@@ -191,29 +191,19 @@ struct RecordFormSection: View {
                 suggestionField(title: "馬名（任意）", placeholder: "例: ○○エース", text: $formState.horseName, suggestions: horseSuggestions)
             }
             if showCourseSurface {
-                selectionPicker(title: "コース（任意・芝・ダートなど）", selection: $formState.courseSurface, options: CourseSurface.allCases) {
-                    Text($0.rawValue).tag($0)
-                }
+                toggleableSelectionButtons(title: "コース（任意・芝・ダートなど）", selection: $formState.courseSurface, options: CourseSurface.allCases, label: { $0.rawValue })
             }
             if showCourseDirection {
-                selectionPicker(title: "コースの向き（任意）", selection: $formState.courseDirection, options: CourseDirection.allCases) {
-                    Text($0.rawValue).tag($0)
-                }
+                toggleableSelectionButtons(title: "コースの向き（任意）", selection: $formState.courseDirection, options: CourseDirection.allCases, label: { $0.rawValue })
             }
             if showCourseLength {
-                selectionPicker(title: "コースの長さ（任意）", selection: $formState.courseLength, options: courseLengthOptions) {
-                    Text(courseDistanceFormatter($0)).tag($0)
-                }
+                toggleableSelectionButtons(title: "コースの長さ（任意）", selection: $formState.courseLength, options: courseLengthOptions, label: { courseDistanceFormatter($0) })
             }
             if showWeather {
-                selectionPicker(title: "天気（任意）", selection: $formState.weather, options: Weather.allCases) {
-                    Text($0.rawValue).tag($0)
-                }
+                toggleableSelectionButtons(title: "天気（任意）", selection: $formState.weather, options: Weather.allCases, label: { $0.rawValue })
             }
             if showTrackCondition {
-                selectionPicker(title: "馬場状態（任意）", selection: $formState.trackCondition, options: TrackCondition.allCases) {
-                    Text($0.rawValue).tag($0)
-                }
+                toggleableSelectionButtons(title: "馬場状態（任意）", selection: $formState.trackCondition, options: TrackCondition.allCases, label: { $0.rawValue })
             }
             pickerRow(title: "レース格", selection: $formState.raceGrade, options: RaceGrade.allCases)
             if showMemo {
@@ -388,29 +378,19 @@ struct EditRecordSheet: View {
                                 suggestionField(title: "馬名（任意）", placeholder: "例: ○○エース", text: $editState.horseName, suggestions: horseSuggestions)
                             }
                             if showCourseSurface {
-                                selectionPicker(title: "コース（任意・芝・ダートなど）", selection: $editState.courseSurface, options: CourseSurface.allCases) {
-                                    Text($0.rawValue).tag($0)
-                                }
+                                toggleableSelectionButtons(title: "コース（任意・芝・ダートなど）", selection: $editState.courseSurface, options: CourseSurface.allCases, label: { $0.rawValue })
                             }
                             if showCourseDirection {
-                                selectionPicker(title: "コースの向き（任意）", selection: $editState.courseDirection, options: CourseDirection.allCases) {
-                                    Text($0.rawValue).tag($0)
-                                }
+                                toggleableSelectionButtons(title: "コースの向き（任意）", selection: $editState.courseDirection, options: CourseDirection.allCases, label: { $0.rawValue })
                             }
                             if showCourseLength || !existingCourseLength.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                selectionPicker(title: "コースの長さ（任意）", selection: $editState.courseLength, options: courseLengthOptions) {
-                                    Text(courseDistanceFormatter($0)).tag($0)
-                                }
+                                toggleableSelectionButtons(title: "コースの長さ（任意）", selection: $editState.courseLength, options: courseLengthOptions, label: { courseDistanceFormatter($0) })
                             }
                             if showWeather {
-                                selectionPicker(title: "天気（任意）", selection: $editState.weather, options: Weather.allCases) {
-                                    Text($0.rawValue).tag($0)
-                                }
+                                toggleableSelectionButtons(title: "天気（任意）", selection: $editState.weather, options: Weather.allCases, label: { $0.rawValue })
                             }
                             if showTrackCondition {
-                                selectionPicker(title: "馬場状態（任意）", selection: $editState.trackCondition, options: TrackCondition.allCases) {
-                                    Text($0.rawValue).tag($0)
-                                }
+                                toggleableSelectionButtons(title: "馬場状態（任意）", selection: $editState.trackCondition, options: TrackCondition.allCases, label: { $0.rawValue })
                             }
                             pickerRow(title: "レース格", selection: $editState.raceGrade, options: RaceGrade.allCases)
                             if showMemo || !existingMemo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -526,6 +506,47 @@ private func selectionPicker<Option: Hashable & Identifiable>(
             }
         }
         .pickerStyle(.menu)
+    }
+}
+
+private func toggleableSelectionButtons<Option: Identifiable & Hashable>(
+    title: String,
+    selection: Binding<Option?>,
+    options: [Option],
+    label: @escaping (Option) -> String
+) -> some View {
+    let columns: [GridItem] = [GridItem(.adaptive(minimum: 80), spacing: 8, alignment: .leading)]
+
+    return VStack(alignment: .leading, spacing: 6) {
+        Text(title)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+
+        LazyVGrid(columns: columns, alignment: .leading, spacing: 8) {
+            ForEach(options) { option in
+                let isSelected = selection.wrappedValue == option
+                Button {
+                    if isSelected {
+                        selection.wrappedValue = nil
+                    } else {
+                        selection.wrappedValue = option
+                    }
+                } label: {
+                    Text(label(option))
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(isSelected ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
+                        .foregroundStyle(isSelected ? Color.white : Color.primary)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(isSelected ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 }
 

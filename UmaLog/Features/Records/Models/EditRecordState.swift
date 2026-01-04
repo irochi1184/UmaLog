@@ -15,11 +15,11 @@ struct EditRecordState {
     var jockeyName: String = ""
     var horseName: String = ""
     var raceTimeDetail: String = ""
-    var courseSurface: CourseSurface = .turf
-    var courseDirection: CourseDirection = .right
-    var courseLength: RaceDistance = .m1600
-    var weather: Weather = .sunny
-    var trackCondition: TrackCondition = .good
+    var courseSurface: CourseSurface? = nil
+    var courseDirection: CourseDirection? = nil
+    var courseLength: RaceDistance? = nil
+    var weather: Weather? = nil
+    var trackCondition: TrackCondition? = nil
     var memo: String = ""
 
     var isValid: Bool {
@@ -45,11 +45,11 @@ struct EditRecordState {
         jockeyName = record.jockeyName ?? ""
         horseName = record.horseName ?? ""
         raceTimeDetail = record.raceTimeDetail ?? ""
-        courseSurface = record.courseSurface.flatMap(CourseSurface.init(rawValue:)) ?? .turf
-        courseDirection = record.courseDirection.flatMap(CourseDirection.init(rawValue:)) ?? .right
-        courseLength = record.courseLength.flatMap(RaceDistance.init(rawValue:)) ?? .m1600
-        weather = record.weather.flatMap(Weather.init(rawValue:)) ?? .sunny
-        trackCondition = record.trackCondition.flatMap(TrackCondition.init(rawValue:)) ?? .good
+        courseSurface = record.courseSurface.flatMap(CourseSurface.init(rawValue:))
+        courseDirection = record.courseDirection.flatMap(CourseDirection.init(rawValue:))
+        courseLength = record.courseLength.flatMap(RaceDistance.init(rawValue:))
+        weather = record.weather.flatMap(Weather.init(rawValue:))
+        trackCondition = record.trackCondition.flatMap(TrackCondition.init(rawValue:))
         memo = record.memo ?? ""
     }
 }
