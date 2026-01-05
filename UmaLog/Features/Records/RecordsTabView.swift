@@ -174,7 +174,7 @@ struct RecordsTabView: View {
 
     private var returnRateColor: Color {
         guard totalInvestment > 0 else { return .white }
-        return totalPayout >= totalInvestment ? .green : .red
+        return totalPayout >= totalInvestment ? Color("MainGreen", bundle: .main) : .red
     }
 
     private var totalInvestment: Double {

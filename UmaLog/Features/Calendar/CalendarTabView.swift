@@ -133,7 +133,7 @@ struct CalendarTabView: View {
         let background: Color
 
         if let net {
-            background = net > 0 ? Color.green.opacity(0.15) : (net < 0 ? Color.red.opacity(0.15) : Color.gray.opacity(0.12))
+            background = net > 0 ? Color("MainGreen", bundle: .main).opacity(0.15) : (net < 0 ? Color.red.opacity(0.15) : Color.gray.opacity(0.12))
         } else {
             background = Color(.systemGray6)
         }
@@ -152,7 +152,7 @@ struct CalendarTabView: View {
 
                     Text(AmountFormatting.currency(totals.payout))
                         .font(.caption2.weight(.semibold))
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Color("MainGreen", bundle: .main))
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
                 }
