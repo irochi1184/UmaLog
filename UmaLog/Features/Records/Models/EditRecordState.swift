@@ -17,7 +17,7 @@ struct EditRecordState {
     var raceTimeDetail: String = ""
     var courseSurface: CourseSurface? = nil
     var courseDirection: CourseDirection? = nil
-    var courseLength: RaceDistance? = nil
+    var courseLength: String = ""
     var weather: Weather? = nil
     var trackCondition: TrackCondition? = nil
     var memo: String = ""
@@ -47,9 +47,15 @@ struct EditRecordState {
         raceTimeDetail = record.raceTimeDetail ?? ""
         courseSurface = record.courseSurface.flatMap(CourseSurface.init(rawValue:))
         courseDirection = record.courseDirection.flatMap(CourseDirection.init(rawValue:))
-        courseLength = record.courseLength.flatMap(RaceDistance.init(rawValue:))
+        courseLength = Self.sanitizedCourseLength(from: record.courseLength)
         weather = record.weather.flatMap(Weather.init(rawValue:))
         trackCondition = record.trackCondition.flatMap(TrackCondition.init(rawValue:))
         memo = record.memo ?? ""
+    }
+
+    private static func sanitizedCourseLength(from text: String?) -> String {
+        guard let text else { return "" }
+        let digits = text.filter(\.isNumber)
+        return digits
     }
 }
