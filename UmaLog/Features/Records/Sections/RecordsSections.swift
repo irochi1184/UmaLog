@@ -33,7 +33,7 @@ struct SummarySection: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         Text(returnRateText)
-                            .font(.system(size: 34, weight: .heavy, design: .rounded))
+                            .font(.system(size: 34, weight: .heavy, design: .default))
                             .foregroundStyle(returnRateColor)
                     }
                     Spacer()
@@ -262,7 +262,7 @@ struct HistorySection: View {
                                     Label(currency(record.investment), systemImage: "arrow.down.right")
                                         .foregroundStyle(.primary)
                                     Label(currency(record.payout), systemImage: "arrow.up.right")
-                                        .foregroundStyle(.green)
+                                        .foregroundStyle(Color("MainGreen", bundle: .main))
                                     Spacer()
                                     Text("回収率 \(record.returnRate, specifier: "%.0f")%")
                                         .font(.caption.weight(.semibold))
