@@ -58,7 +58,7 @@ struct CalendarTabView: View {
                 set: { if !$0 { selectedDate = nil } }
             )
         ) {
-            if let selectedDate {
+            if let selectedDate = selectedDate {
                 DailyRecordsSheet(
                     date: selectedDate,
                     records: recordsForDate(selectedDate),
@@ -79,13 +79,11 @@ struct CalendarTabView: View {
                     showTrackCondition: showTrackConditionField,
                     showMemo: showMemoField,
                     fiveMinuteOptions: fiveMinuteOptions,
-                    courseLengthOptions: RaceDistance.allCases,
-                    courseDistanceFormatter: { $0.display },
                     jockeySuggestions: jockeySuggestions,
                     horseSuggestions: horseSuggestions,
                     onSave: saveEditing,
                     startEditing: startEditing(_:),
-                    dismiss: { selectedDate = nil }
+                    dismiss: { self.selectedDate = nil }
                 )
             }
         }
@@ -383,8 +381,6 @@ private struct DailyRecordsSheet: View {
     let showTrackCondition: Bool
     let showMemo: Bool
     let fiveMinuteOptions: [String]
-    let courseLengthOptions: [RaceDistance]
-    let courseDistanceFormatter: (RaceDistance) -> String
     let jockeySuggestions: [String]
     let horseSuggestions: [String]
     let onSave: () -> Void
@@ -446,8 +442,6 @@ private struct DailyRecordsSheet: View {
                     showTrackCondition: showTrackCondition,
                     showMemo: showMemo,
                     fiveMinuteOptions: fiveMinuteOptions,
-                    courseLengthOptions: courseLengthOptions,
-                    courseDistanceFormatter: courseDistanceFormatter,
                     jockeySuggestions: jockeySuggestions,
                     horseSuggestions: horseSuggestions,
                     onSave: onSave
