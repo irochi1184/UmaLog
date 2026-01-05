@@ -116,8 +116,6 @@ struct RecordFormSection: View {
     let showTrackCondition: Bool
     let showMemo: Bool
     let fiveMinuteOptions: [String]
-    let courseLengthOptions: [RaceDistance]
-    let courseDistanceFormatter: (RaceDistance) -> String
     let jockeySuggestions: [String]
     let horseSuggestions: [String]
     let onAdd: () -> Void
@@ -197,7 +195,7 @@ struct RecordFormSection: View {
                 toggleableSelectionButtons(title: "コースの向き", selection: $formState.courseDirection, options: CourseDirection.allCases, label: { $0.rawValue })
             }
             if showCourseLength {
-                toggleableSelectionButtons(title: "コースの長さ", selection: $formState.courseLength, options: courseLengthOptions, label: { courseDistanceFormatter($0) })
+                courseLengthField(title: "コースの長さ", text: $formState.courseLength)
             }
             if showWeather {
                 toggleableSelectionButtons(title: "天気", selection: $formState.weather, options: Weather.allCases, label: { $0.rawValue })
@@ -299,8 +297,6 @@ struct EditRecordSheet: View {
     let showTrackCondition: Bool
     let showMemo: Bool
     let fiveMinuteOptions: [String]
-    let courseLengthOptions: [RaceDistance]
-    let courseDistanceFormatter: (RaceDistance) -> String
     let jockeySuggestions: [String]
     let horseSuggestions: [String]
     let onSave: () -> Void
@@ -384,7 +380,7 @@ struct EditRecordSheet: View {
                                 toggleableSelectionButtons(title: "コースの向き", selection: $editState.courseDirection, options: CourseDirection.allCases, label: { $0.rawValue })
                             }
                             if showCourseLength || !existingCourseLength.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                toggleableSelectionButtons(title: "コースの長さ", selection: $editState.courseLength, options: courseLengthOptions, label: { courseDistanceFormatter($0) })
+                                courseLengthField(title: "コースの長さ", text: $editState.courseLength)
                             }
                             if showWeather {
                                 toggleableSelectionButtons(title: "天気", selection: $editState.weather, options: Weather.allCases, label: { $0.rawValue })
@@ -473,6 +469,29 @@ private func detailTextField(title: String, placeholder: String, text: Binding<S
         TextField(placeholder, text: text)
             .textFieldStyle(.roundedBorder)
             .keyboardType(keyboardType)
+    }
+}
+
+private func courseLengthField(title: String, text: Binding<String>) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+        Text(title)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        HStack(spacing: 6) {
+            TextField("例: 1600", text: text)
+                .textFieldStyle(.roundedBorder)
+                .keyboardType(.numberPad)
+                .frame(maxWidth: .infinity)
+                .onChange(of: text.wrappedValue) { newValue in
+                    let filtered = newValue.filter(\.isNumber)
+                    if filtered != newValue {
+                        text.wrappedValue = filtered
+                    }
+                }
+            Text("m")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
     }
 }
 
