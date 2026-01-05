@@ -334,7 +334,7 @@ struct EditRecordSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("日付（自動で今日をセット）")
+                        Text("日付（記録した日）")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         DatePicker("日付", selection: $editState.date, displayedComponents: .date)
@@ -899,7 +899,7 @@ private func placeholderCard(text: String) -> some View {
         .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
 }
 
-private func detailLines(for record: BetRecord) -> [String] {
+func detailLines(for record: BetRecord) -> [String] {
     var lines: [String] = []
 
     lines.append(record.popularityBand.rawValue)
