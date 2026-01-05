@@ -33,7 +33,7 @@ struct SummarySection: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         Text(returnRateText)
-                            .font(.system(size: 34, weight: .heavy, design: .default))
+                            .font(.system(size: 34, weight: .bold, design: .default))
                             .foregroundStyle(returnRateColor)
                     }
                     Spacer()
@@ -330,13 +330,9 @@ struct EditRecordSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("日付（記録した日）")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                         DatePicker("日付", selection: $editState.date, displayedComponents: .date)
                             .datePickerStyle(.compact)
                             .environment(\.locale, datePickerLocale)
-                            .disabled(true)
                             .opacity(0.7)
                     }
 

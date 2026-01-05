@@ -200,13 +200,13 @@ struct CalendarTabView: View {
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(.red.opacity(0.8))
                             .lineLimit(1)
-                            .minimumScaleFactor(0.6)
+                            .minimumScaleFactor(0.45)
 
                         Text(AmountFormatting.currency(totals.payout))
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(Color("MainGreen", bundle: .main))
                             .lineLimit(1)
-                            .minimumScaleFactor(0.6)
+                            .minimumScaleFactor(0.45)
                     }
                 } else {
                     Text("—")
@@ -474,6 +474,8 @@ private struct DailyRecordsSheet: View {
                     Image(systemName: "arrow.up.right.circle.fill")
                         .foregroundStyle(Color("MainGreen", bundle: .main))
                 }
+            }
+            HStack(spacing: 12) {
                 Spacer()
                 Text(summaryNetText)
                     .font(.subheadline.weight(.bold))
