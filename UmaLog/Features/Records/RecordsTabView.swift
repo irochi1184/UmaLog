@@ -65,8 +65,6 @@ struct RecordsTabView: View {
                             showTrackCondition: showTrackConditionField,
                             showMemo: showMemoField,
                             fiveMinuteOptions: fiveMinuteOptions,
-                            courseLengthOptions: RaceDistance.allCases,
-                            courseDistanceFormatter: { $0.display },
                             jockeySuggestions: jockeySuggestions,
                             horseSuggestions: horseSuggestions,
                             onAdd: addRecord
@@ -109,8 +107,6 @@ struct RecordsTabView: View {
                     showTrackCondition: showTrackConditionField,
                     showMemo: showMemoField,
                     fiveMinuteOptions: fiveMinuteOptions,
-                    courseLengthOptions: RaceDistance.allCases,
-                    courseDistanceFormatter: { $0.display },
                     jockeySuggestions: jockeySuggestions,
                     horseSuggestions: horseSuggestions,
                     onSave: saveEditing

@@ -31,30 +31,6 @@ enum CourseDirection: String, CaseIterable, Identifiable, Hashable, Codable {
     var id: String { rawValue }
 }
 
-enum RaceDistance: String, CaseIterable, Identifiable, Hashable, Codable {
-    case m1000 = "1000"
-    case m1200 = "1200"
-    case m1400 = "1400"
-    case m1500 = "1500"
-    case m1600 = "1600"
-    case m1700 = "1700"
-    case m1800 = "1800"
-    case m2000 = "2000"
-    case m2200 = "2200"
-    case m2400 = "2400"
-    case m2500 = "2500"
-    case m2600 = "2600"
-    case m3000 = "3000"
-    case m3200 = "3200"
-    case m3400 = "3400"
-
-    var id: String { rawValue }
-
-    var display: String {
-        "\(rawValue)m"
-    }
-}
-
 enum Weather: String, CaseIterable, Identifiable, Hashable, Codable {
     case sunny = "晴れ"
     case cloudy = "くもり"
