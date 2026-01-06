@@ -23,9 +23,11 @@ struct CalendarTabView: View {
     @AppStorage("showTrackConditionField") private var showTrackConditionField = false
     @AppStorage("showMemoField") private var showMemoField = false
 
+    private let dateLocale = Locale(identifier: "ja_JP")
+
     private var calendar: Calendar {
         var calendar = Calendar.autoupdatingCurrent
-        calendar.locale = .autoupdatingCurrent
+        calendar.locale = dateLocale
         return calendar
     }
 
@@ -159,7 +161,7 @@ struct CalendarTabView: View {
 
     private var currentMonthTitle: String {
         let formatter = DateFormatter()
-        formatter.locale = .autoupdatingCurrent
+        formatter.locale = dateLocale
         formatter.calendar = calendar
         formatter.setLocalizedDateFormatFromTemplate("yMMM")
         return formatter.string(from: displayedMonth)
@@ -406,9 +408,13 @@ private struct DailyRecordsSheet: View {
     let startEditing: (BetRecord) -> Void
     let dismiss: () -> Void
 
+    private var dateLocale: Locale {
+        calendar.locale ?? Locale(identifier: "ja_JP")
+    }
+
     private var titleFormatter: DateFormatter {
         let formatter = DateFormatter()
-        formatter.locale = .autoupdatingCurrent
+        formatter.locale = dateLocale
         formatter.calendar = calendar
         formatter.setLocalizedDateFormatFromTemplate("yMMMMdEEE")
         return formatter
@@ -447,7 +453,7 @@ private struct DailyRecordsSheet: View {
             .sheet(isPresented: $editState.isPresented) {
                 EditRecordSheet(
                     editState: $editState,
-                    datePickerLocale: calendar.locale ?? .autoupdatingCurrent,
+                    datePickerLocale: dateLocale,
                     focusedAmountField: focusedAmountField,
                     showRacecourse: showRacecourse,
                     showHorseNumber: showHorseNumber,
