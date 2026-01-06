@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 struct CalendarTabView: View {
     let records: [BetRecord]

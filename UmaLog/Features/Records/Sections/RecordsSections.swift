@@ -504,7 +504,7 @@ private func courseLengthField(title: String, text: Binding<String>) -> some Vie
                 .textFieldStyle(.roundedBorder)
                 .keyboardType(.numberPad)
                 .frame(maxWidth: .infinity)
-                .onChange(of: text.wrappedValue) { newValue in
+                .onChange(of: text.wrappedValue) { _, newValue in
                     let filtered = newValue.filter(\.isNumber)
                     if filtered != newValue {
                         text.wrappedValue = filtered
