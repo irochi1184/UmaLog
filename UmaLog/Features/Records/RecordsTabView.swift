@@ -8,6 +8,7 @@ struct RecordsTabView: View {
 
     @State private var formState = RecordFormState()
     @State private var editState = EditRecordState()
+    @State private var recordPendingDeletion: BetRecord?
     @State private var showToast = false
     @FocusState private var focusedAmountField: AmountField?
     @AppStorage("prefersQuickEntry") private var prefersQuickEntry = true
@@ -74,7 +75,8 @@ struct RecordsTabView: View {
                             historyDateFormatter: historyDateFormatter,
                             cardBackground: cardBackground,
                             currency: { AmountFormatting.currency($0) },
-                            startEditing: startEditing(_:)
+                            startEditing: startEditing(_:),
+                            onRequestDelete: confirmDelete(_:)
                         )
                     }
                     .padding()
@@ -109,7 +111,8 @@ struct RecordsTabView: View {
                     fiveMinuteOptions: fiveMinuteOptions,
                     jockeySuggestions: jockeySuggestions,
                     horseSuggestions: horseSuggestions,
-                    onSave: saveEditing
+                    onSave: saveEditing,
+                    onDelete: deleteRecord(_:)
                 )
             }
             .overlay(alignment: .bottom) {
@@ -126,6 +129,18 @@ struct RecordsTabView: View {
         }
         .onChange(of: editState.ticketType) { _, newValue in
             normalizeEditHorseSelection(maxSelection: newValue.requiredHorseSelections)
+        }
+        .confirmationDialog("この記録を削除しますか？", isPresented: deleteDialogBinding, titleVisibility: .visible) {
+            if let record = recordPendingDeletion {
+                Button("削除", role: .destructive) {
+                    deleteRecord(record)
+                }
+            }
+            Button("キャンセル", role: .cancel) {
+                recordPendingDeletion = nil
+            }
+        } message: {
+            Text("削除すると元に戻せません。")
         }
     }
 
@@ -320,6 +335,10 @@ struct RecordsTabView: View {
         editState.load(from: record)
     }
 
+    private func confirmDelete(_ record: BetRecord) {
+        recordPendingDeletion = record
+    }
+
     private func saveEditing() {
         guard
             let record = editState.record,
@@ -352,6 +371,28 @@ struct RecordsTabView: View {
             focusedAmountField = nil
             editState.isPresented = false
         }
+    }
+
+    private func deleteRecord(_ record: BetRecord) {
+        withAnimation {
+            modelContext.delete(record)
+            if editState.record == record {
+                editState.isPresented = false
+                editState.record = nil
+            }
+            recordPendingDeletion = nil
+        }
+    }
+
+    private var deleteDialogBinding: Binding<Bool> {
+        Binding(
+            get: { recordPendingDeletion != nil },
+            set: { isPresented in
+                if !isPresented {
+                    recordPendingDeletion = nil
+                }
+            }
+        )
     }
 }
 
