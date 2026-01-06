@@ -3,6 +3,7 @@ import SwiftUI
 struct CalendarTabView: View {
     let records: [BetRecord]
 
+    @Environment(\.modelContext) private var modelContext
     @State private var displayedMonth: Date = Calendar.autoupdatingCurrent.date(
         from: Calendar.autoupdatingCurrent.dateComponents([.year, .month], from: Date())
     ) ?? Date()
@@ -82,6 +83,7 @@ struct CalendarTabView: View {
                     jockeySuggestions: jockeySuggestions,
                     horseSuggestions: horseSuggestions,
                     onSave: saveEditing,
+                    onDelete: deleteRecord(_:),
                     startEditing: startEditing(_:),
                     dismiss: { self.selectedDate = nil }
                 )
@@ -306,6 +308,21 @@ struct CalendarTabView: View {
         editState.load(from: record)
     }
 
+    private func deleteRecord(_ record: BetRecord) {
+        withAnimation {
+            modelContext.delete(record)
+            if editState.record == record {
+                editState.isPresented = false
+                editState.record = nil
+            }
+            if let selectedDate, calendar.isDate(selectedDate, inSameDayAs: record.createdAt) {
+                if recordsForDate(selectedDate).isEmpty {
+                    self.selectedDate = nil
+                }
+            }
+        }
+    }
+
     private func saveEditing() {
         guard
             let record = editState.record,
@@ -384,6 +401,7 @@ private struct DailyRecordsSheet: View {
     let jockeySuggestions: [String]
     let horseSuggestions: [String]
     let onSave: () -> Void
+    let onDelete: (BetRecord) -> Void
     let startEditing: (BetRecord) -> Void
     let dismiss: () -> Void
 
@@ -444,7 +462,8 @@ private struct DailyRecordsSheet: View {
                     fiveMinuteOptions: fiveMinuteOptions,
                     jockeySuggestions: jockeySuggestions,
                     horseSuggestions: horseSuggestions,
-                    onSave: onSave
+                    onSave: onSave,
+                    onDelete: onDelete
                 )
             }
         }
