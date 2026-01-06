@@ -219,6 +219,7 @@ struct HistorySection: View {
     let cardBackground: Color
     let currency: (Double) -> String
     let startEditing: (BetRecord) -> Void
+    let onRequestDelete: (BetRecord) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -273,6 +274,9 @@ struct HistorySection: View {
                             .background(cardBackground, in: RoundedRectangle(cornerRadius: 14))
                         }
                         .buttonStyle(.plain)
+                        .onLongPressGesture {
+                            onRequestDelete(record)
+                        }
                     }
                 }
             }
@@ -300,6 +304,9 @@ struct EditRecordSheet: View {
     let jockeySuggestions: [String]
     let horseSuggestions: [String]
     let onSave: () -> Void
+    let onDelete: (BetRecord) -> Void
+
+    @State private var showDeleteConfirmation = false
 
     private var existingRacecourse: String {
         editState.record?.racecourse ?? ""
@@ -401,7 +408,14 @@ struct EditRecordSheet: View {
                         editState.isPresented = false
                     }
                 }
-                ToolbarItem(placement: .confirmationAction) {
+                ToolbarItemGroup(placement: .confirmationAction) {
+                    Button {
+                        showDeleteConfirmation = true
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                    .disabled(editState.record == nil)
+
                     Button("保存") {
                         onSave()
                     }
@@ -413,6 +427,18 @@ struct EditRecordSheet: View {
                         focusedAmountField = nil
                     }
                 }
+            }
+            .confirmationDialog("この記録を削除しますか？", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+                Button("削除", role: .destructive) {
+                    guard let record = editState.record else { return }
+                    onDelete(record)
+                    editState.isPresented = false
+                }
+                Button("キャンセル", role: .cancel) {
+                    showDeleteConfirmation = false
+                }
+            } message: {
+                Text("削除すると元に戻せません。")
             }
         }
     }
