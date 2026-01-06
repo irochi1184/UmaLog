@@ -253,6 +253,13 @@ struct SettingsTabView: View {
         switch result {
         case .success(let url):
             do {
+                let didAccess = url.startAccessingSecurityScopedResource()
+                defer {
+                    if didAccess {
+                        url.stopAccessingSecurityScopedResource()
+                    }
+                }
+
                 let data = try Data(contentsOf: url)
                 guard let text = String(data: data, encoding: .utf8) else {
                     showAlert(title: "読み込みに失敗しました", message: "ファイルを読み込めませんでした。UTF-8形式のCSVを指定してください。")
