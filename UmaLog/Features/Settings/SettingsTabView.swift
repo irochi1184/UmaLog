@@ -44,10 +44,8 @@ struct SettingsTabView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         header
                         modeSection
-                        memoSection
                         toggleSection
                         backupSection
-                        infoSection
                     }
                     .padding()
                 }
@@ -143,31 +141,6 @@ struct SettingsTabView: View {
         }
     }
 
-    private var memoSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("メモ帳")
-                .font(.headline)
-                .foregroundStyle(.white)
-
-            VStack(spacing: 12) {
-                Text("買い目のメモや当日の気づきを、一覧で管理できます。")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-
-                NavigationLink {
-                    MemoListView()
-                } label: {
-                    Label("メモ帳を開く", systemImage: "note.text")
-                        .font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-            }
-            .padding()
-            .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
-        }
-    }
-
     private var backupSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("バックアップ")
@@ -194,22 +167,6 @@ struct SettingsTabView: View {
                     }
                     .buttonStyle(.bordered)
                 }
-            }
-            .padding()
-            .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
-        }
-    }
-
-    private var infoSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("メモ")
-                .font(.headline)
-                .foregroundStyle(.white)
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("モードはいつでも切り替え可能です。入力途中でも設定から変えられます。")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
             }
             .padding()
             .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
