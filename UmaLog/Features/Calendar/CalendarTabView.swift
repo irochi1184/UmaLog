@@ -277,8 +277,6 @@ struct CalendarTabView: View {
     }
 
     private func showRecords(for date: Date) {
-        let dayRecords = recordsForDate(date)
-        guard !dayRecords.isEmpty else { return }
         selectedDate = calendar.startOfDay(for: date)
     }
 
@@ -322,11 +320,6 @@ struct CalendarTabView: View {
             if editState.record == record {
                 editState.isPresented = false
                 editState.record = nil
-            }
-            if let selectedDate, calendar.isDate(selectedDate, inSameDayAs: record.createdAt) {
-                if recordsForDate(selectedDate).isEmpty {
-                    self.selectedDate = nil
-                }
             }
         }
     }
