@@ -39,10 +39,8 @@ struct MemoListView: View {
                 }
             }
         }
-        .sheet(item: $editingMemo) { memo in
-            NavigationStack {
-                MemoEditorView(memo: memo, isNew: true)
-            }
+        .navigationDestination(item: $editingMemo) { memo in
+            MemoEditorView(memo: memo, isNew: true)
         }
     }
 
