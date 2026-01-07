@@ -24,12 +24,6 @@ struct MemoEditorView: View {
         .navigationTitle(isNew ? "メモを追加" : "メモを編集")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button("完了") {
-                    dismiss()
-                }
-            }
-
             if isNew {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("キャンセル") {
@@ -37,12 +31,18 @@ struct MemoEditorView: View {
                     }
                 }
             } else {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button(role: .destructive) {
                         isShowingDeleteConfirmation = true
                     } label: {
                         Image(systemName: "trash")
                     }
+                }
+            }
+
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("完了") {
+                    dismiss()
                 }
             }
         }

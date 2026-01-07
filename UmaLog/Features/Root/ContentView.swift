@@ -16,6 +16,13 @@ struct ContentView: View {
                     Label("カレンダー", systemImage: "calendar")
                 }
 
+            NavigationStack {
+                MemoListView()
+            }
+            .tabItem {
+                Label("メモ", systemImage: "note.text")
+            }
+
             SettingsTabView()
                 .tabItem {
                     Label("設定", systemImage: "slider.horizontal.3")
