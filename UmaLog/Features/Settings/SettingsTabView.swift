@@ -44,6 +44,7 @@ struct SettingsTabView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         header
                         modeSection
+                        memoSection
                         toggleSection
                         backupSection
                         infoSection
@@ -136,6 +137,31 @@ struct SettingsTabView: View {
                 toggleRow(title: "天気", isOn: $showWeatherField)
                 toggleRow(title: "馬場状態", isOn: $showTrackConditionField)
                 toggleRow(title: "ひと言メモ", isOn: $showMemoField)
+            }
+            .padding()
+            .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
+        }
+    }
+
+    private var memoSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("メモ帳")
+                .font(.headline)
+                .foregroundStyle(.white)
+
+            VStack(spacing: 12) {
+                Text("買い目のメモや当日の気づきを、一覧で管理できます。")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                NavigationLink {
+                    MemoListView()
+                } label: {
+                    Label("メモ帳を開く", systemImage: "note.text")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
             }
             .padding()
             .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))

@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 let previewContainer: ModelContainer = {
-    let container = try! ModelContainer(for: BetRecord.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+    let container = try! ModelContainer(for: BetRecord.self, MemoNote.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
     let context = ModelContext(container)
     let samples: [BetRecord] = [
         BetRecord(

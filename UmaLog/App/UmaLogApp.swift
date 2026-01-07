@@ -13,6 +13,7 @@ struct UmaLogApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             BetRecord.self,
+            MemoNote.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
