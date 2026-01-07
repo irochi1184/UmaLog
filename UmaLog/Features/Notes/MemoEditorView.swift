@@ -41,9 +41,14 @@ struct MemoEditorView: View {
             }
 
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button("完了") {
+                Button {
                     dismiss()
+                } label: {
+                    Image(systemName: "checkmark")
+                        .font(.headline)
                 }
+                .buttonStyle(.borderedProminent)
+                .tint(Color("MainGreen", bundle: .main))
             }
         }
         .onChange(of: memo.title) { _, _ in
