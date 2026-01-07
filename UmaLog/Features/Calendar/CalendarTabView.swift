@@ -88,6 +88,7 @@ struct CalendarTabView: View {
                     onSave: saveEditing,
                     onDelete: deleteRecord(_:),
                     startEditing: startEditing(_:),
+                    startNewRecord: startNewRecord(for:),
                     dismiss: { self.selectedDate = nil }
                 )
             }
@@ -311,6 +312,10 @@ struct CalendarTabView: View {
         editState.load(from: record)
     }
 
+    private func startNewRecord(for date: Date) {
+        editState.prepareForNew(date: calendar.startOfDay(for: date))
+    }
+
     private func deleteRecord(_ record: BetRecord) {
         withAnimation {
             modelContext.delete(record)
@@ -328,7 +333,6 @@ struct CalendarTabView: View {
 
     private func saveEditing() {
         guard
-            let record = editState.record,
             let investment = AmountFormatting.parseAmount(editState.investmentText)
         else { return }
         let payout = AmountFormatting.parseAmount(editState.payoutText) ?? 0
@@ -336,27 +340,53 @@ struct CalendarTabView: View {
         normalizeEditHorseSelection(maxSelection: editState.ticketType.requiredHorseSelections)
 
         withAnimation {
-            record.createdAt = calendar.startOfDay(for: editState.date)
-            record.ticketType = editState.ticketType
-            record.popularityBand = editState.popularityBand
-            record.raceGrade = editState.raceGrade
-            record.investment = investment
-            record.payout = payout
-            record.racecourse = preservedValue(from: editState.racecourse.rawValue, isEnabled: showRacecourseField, original: record.racecourse)
-            record.raceNumber = String(editState.raceNumber)
-            let horseNumberText = editState.horseNumbers.isEmpty ? nil : editState.horseNumbers.map(String.init).joined(separator: "-")
-            record.horseNumber = preservedValue(from: horseNumberText ?? "", isEnabled: showHorseNumberField, original: record.horseNumber)
-            record.jockeyName = preservedValue(from: editState.jockeyName, isEnabled: showJockeyField, original: record.jockeyName)
-            record.horseName = preservedValue(from: editState.horseName, isEnabled: showHorseNameField, original: record.horseName)
-            record.raceTimeDetail = preservedValue(from: editState.raceTimeDetail, isEnabled: showRaceTimeField, original: record.raceTimeDetail)
-            record.courseSurface = preservedValue(from: editState.courseSurface, isEnabled: showCourseSurfaceField, original: record.courseSurface)
-            record.courseDirection = preservedValue(from: editState.courseDirection, isEnabled: showCourseDirectionField, original: record.courseDirection)
-            record.courseLength = preservedValue(from: editState.courseLength, isEnabled: showCourseLengthField, original: record.courseLength)
-            record.weather = preservedValue(from: editState.weather, isEnabled: showWeatherField, original: record.weather)
-            record.trackCondition = preservedValue(from: editState.trackCondition, isEnabled: showTrackConditionField, original: record.trackCondition)
-            record.memo = preservedValue(from: editState.memo, isEnabled: showMemoField, original: record.memo)
+            if let record = editState.record {
+                record.createdAt = calendar.startOfDay(for: editState.date)
+                record.ticketType = editState.ticketType
+                record.popularityBand = editState.popularityBand
+                record.raceGrade = editState.raceGrade
+                record.investment = investment
+                record.payout = payout
+                record.racecourse = preservedValue(from: editState.racecourse.rawValue, isEnabled: showRacecourseField, original: record.racecourse)
+                record.raceNumber = String(editState.raceNumber)
+                let horseNumberText = editState.horseNumbers.isEmpty ? nil : editState.horseNumbers.map(String.init).joined(separator: "-")
+                record.horseNumber = preservedValue(from: horseNumberText ?? "", isEnabled: showHorseNumberField, original: record.horseNumber)
+                record.jockeyName = preservedValue(from: editState.jockeyName, isEnabled: showJockeyField, original: record.jockeyName)
+                record.horseName = preservedValue(from: editState.horseName, isEnabled: showHorseNameField, original: record.horseName)
+                record.raceTimeDetail = preservedValue(from: editState.raceTimeDetail, isEnabled: showRaceTimeField, original: record.raceTimeDetail)
+                record.courseSurface = preservedValue(from: editState.courseSurface, isEnabled: showCourseSurfaceField, original: record.courseSurface)
+                record.courseDirection = preservedValue(from: editState.courseDirection, isEnabled: showCourseDirectionField, original: record.courseDirection)
+                record.courseLength = preservedValue(from: editState.courseLength, isEnabled: showCourseLengthField, original: record.courseLength)
+                record.weather = preservedValue(from: editState.weather, isEnabled: showWeatherField, original: record.weather)
+                record.trackCondition = preservedValue(from: editState.trackCondition, isEnabled: showTrackConditionField, original: record.trackCondition)
+                record.memo = preservedValue(from: editState.memo, isEnabled: showMemoField, original: record.memo)
+            } else {
+                let horseNumberText = editState.horseNumbers.isEmpty ? nil : editState.horseNumbers.map(String.init).joined(separator: "-")
+                let newRecord = BetRecord(
+                    createdAt: calendar.startOfDay(for: editState.date),
+                    ticketType: editState.ticketType,
+                    popularityBand: editState.popularityBand,
+                    raceGrade: editState.raceGrade,
+                    investment: investment,
+                    payout: payout,
+                    racecourse: preservedValue(from: editState.racecourse.rawValue, isEnabled: showRacecourseField, original: nil),
+                    raceNumber: String(editState.raceNumber),
+                    horseNumber: preservedValue(from: horseNumberText ?? "", isEnabled: showHorseNumberField, original: nil),
+                    jockeyName: preservedValue(from: editState.jockeyName, isEnabled: showJockeyField, original: nil),
+                    horseName: preservedValue(from: editState.horseName, isEnabled: showHorseNameField, original: nil),
+                    raceTimeDetail: preservedValue(from: editState.raceTimeDetail, isEnabled: showRaceTimeField, original: nil),
+                    courseSurface: preservedValue(from: editState.courseSurface, isEnabled: showCourseSurfaceField, original: nil),
+                    courseDirection: preservedValue(from: editState.courseDirection, isEnabled: showCourseDirectionField, original: nil),
+                    courseLength: preservedValue(from: editState.courseLength, isEnabled: showCourseLengthField, original: nil),
+                    weather: preservedValue(from: editState.weather, isEnabled: showWeatherField, original: nil),
+                    trackCondition: preservedValue(from: editState.trackCondition, isEnabled: showTrackConditionField, original: nil),
+                    memo: preservedValue(from: editState.memo, isEnabled: showMemoField, original: nil)
+                )
+                modelContext.insert(newRecord)
+            }
             focusedAmountField = nil
             editState.isPresented = false
+            editState.isNewEntry = false
         }
     }
 
@@ -406,6 +436,7 @@ private struct DailyRecordsSheet: View {
     let onSave: () -> Void
     let onDelete: (BetRecord) -> Void
     let startEditing: (BetRecord) -> Void
+    let startNewRecord: (Date) -> Void
     let dismiss: () -> Void
 
     private var dateLocale: Locale {
@@ -447,6 +478,13 @@ private struct DailyRecordsSheet: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("閉じる") {
                         dismiss()
+                    }
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        startNewRecord(date)
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
                     }
                 }
             }

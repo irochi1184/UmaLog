@@ -9,6 +9,7 @@ struct EditRecordState {
     var investmentText: String = ""
     var payoutText: String = ""
     var isPresented: Bool = false
+    var isNewEntry: Bool = false
     var racecourse: Racecourse = .tokyo
     var raceNumber: Int = 1
     var horseNumbers: [Int] = []
@@ -25,11 +26,12 @@ struct EditRecordState {
     var isValid: Bool {
         let investment = AmountFormatting.parseAmount(investmentText) ?? 0
         let payout = AmountFormatting.parseAmount(payoutText) ?? 0
-        return record != nil && investment > 0 && payout >= 0 && raceNumber > 0
+        return (record != nil || isNewEntry) && investment > 0 && payout >= 0 && raceNumber > 0
     }
 
     mutating func load(from record: BetRecord) {
         self.record = record
+        isNewEntry = false
         date = record.createdAt
         ticketType = record.ticketType
         popularityBand = record.popularityBand
@@ -51,6 +53,30 @@ struct EditRecordState {
         weather = record.weather.flatMap(Weather.init(rawValue:))
         trackCondition = record.trackCondition.flatMap(TrackCondition.init(rawValue:))
         memo = record.memo ?? ""
+    }
+
+    mutating func prepareForNew(date: Date) {
+        record = nil
+        isNewEntry = true
+        self.date = date
+        ticketType = .win
+        popularityBand = .favorite
+        raceGrade = .flat
+        investmentText = ""
+        payoutText = ""
+        isPresented = true
+        racecourse = .tokyo
+        raceNumber = 1
+        horseNumbers = []
+        jockeyName = ""
+        horseName = ""
+        raceTimeDetail = ""
+        courseSurface = nil
+        courseDirection = nil
+        courseLength = ""
+        weather = nil
+        trackCondition = nil
+        memo = ""
     }
 
     private static func sanitizedCourseLength(from text: String?) -> String {
