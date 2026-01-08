@@ -24,13 +24,7 @@ struct MemoEditorView: View {
         .navigationTitle(isNew ? "メモを追加" : "メモを編集")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if isNew {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("キャンセル") {
-                        cancelNewMemo()
-                    }
-                }
-            } else {
+            if !isNew {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(role: .destructive) {
                         isShowingDeleteConfirmation = true
