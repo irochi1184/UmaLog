@@ -19,6 +19,7 @@ struct SummarySection: View {
     let recordCount: Int
     let totalInvestment: String
     let totalPayout: String
+    let analysisText: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -51,6 +52,17 @@ struct SummarySection: View {
                     summaryStat(title: "投資合計", value: totalInvestment)
                     summaryStat(title: "払戻合計", value: totalPayout)
                 }
+            }
+            .padding()
+            .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("負けやすい傾向")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(analysisText)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
             }
             .padding()
             .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
