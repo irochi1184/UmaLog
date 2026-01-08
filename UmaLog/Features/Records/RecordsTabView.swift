@@ -44,7 +44,8 @@ struct RecordsTabView: View {
                             returnRateColor: returnRateColor,
                             recordCount: records.count,
                             totalInvestment: AmountFormatting.currency(totalInvestment),
-                            totalPayout: AmountFormatting.currency(totalPayout)
+                            totalPayout: AmountFormatting.currency(totalPayout),
+                            analysisText: lossInsightText
                         )
                         AnalysisSection(pattern: worstPattern, cardBackground: cardBackground)
                         RecordFormSection(
@@ -196,12 +197,263 @@ struct RecordsTabView: View {
         records.reduce(0) { $0 + $1.payout }
     }
 
+    private var lossInsightText: String {
+        lossInsight ?? "まだ負けの傾向は見えていません。"
+    }
+
+    private var lossInsight: String? {
+        let lossRecords = records.filter { $0.investment > 0 && $0.payout < $0.investment }
+        guard !lossRecords.isEmpty else { return nil }
+
+        let raceStats = featureStats(in: lossRecords, seeds: raceFeatureSeeds(for:))
+        let betStats = featureStats(in: lossRecords, seeds: betFeatureSeeds(for:))
+
+        let raceDescriptor = buildRaceDescriptor(from: raceStats)
+        let betDescriptor = buildBetDescriptor(from: betStats)
+
+        guard !raceDescriptor.isEmpty, !betDescriptor.isEmpty else { return nil }
+        return "\(raceDescriptor)で、\(betDescriptor)が負けがちです。"
+    }
+
     private var historyDateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.locale = .autoupdatingCurrent
         formatter.calendar = calendar
         formatter.setLocalizedDateFormatFromTemplate("yMd")
         return formatter
+    }
+
+    private enum FeatureCategory: Hashable {
+        case racecourse
+        case raceSegment
+        case surface
+        case direction
+        case length
+        case weather
+        case trackCondition
+        case raceTime
+        case ticketType
+        case popularityBand
+        case raceGrade
+        case horseSelection
+        case jockeyName
+        case horseName
+    }
+
+    private struct FeatureSeed: Hashable {
+        let label: String
+        let category: FeatureCategory
+    }
+
+    private struct FeatureStat {
+        let label: String
+        let category: FeatureCategory
+        var investment: Double
+        var payout: Double
+        var count: Int
+
+        var loss: Double {
+            investment - payout
+        }
+
+        var returnRate: Double {
+            guard investment > 0 else { return 0 }
+            return (payout / investment) * 100
+        }
+    }
+
+    private func featureStats(in records: [BetRecord], seeds: (BetRecord) -> [FeatureSeed]) -> [FeatureStat] {
+        var dictionary: [FeatureSeed: FeatureStat] = [:]
+
+        for record in records {
+            let investment = record.investment
+            let payout = record.payout
+
+            for seed in seeds(record) {
+                if var stat = dictionary[seed] {
+                    stat.investment += investment
+                    stat.payout += payout
+                    stat.count += 1
+                    dictionary[seed] = stat
+                } else {
+                    dictionary[seed] = FeatureStat(
+                        label: seed.label,
+                        category: seed.category,
+                        investment: investment,
+                        payout: payout,
+                        count: 1
+                    )
+                }
+            }
+        }
+
+        return Array(dictionary.values)
+    }
+
+    private func raceFeatureSeeds(for record: BetRecord) -> [FeatureSeed] {
+        var seeds: [FeatureSeed] = []
+
+        if let racecourse = record.racecourse?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !racecourse.isEmpty {
+            seeds.append(FeatureSeed(label: "\(racecourse)競馬場", category: .racecourse))
+        }
+
+        if let segment = raceSegmentLabel(from: record.raceNumberText) {
+            seeds.append(FeatureSeed(label: segment, category: .raceSegment))
+        }
+
+        if let surface = record.courseSurface?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !surface.isEmpty {
+            seeds.append(FeatureSeed(label: surface, category: .surface))
+        }
+
+        if let direction = record.courseDirection?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !direction.isEmpty {
+            seeds.append(FeatureSeed(label: direction, category: .direction))
+        }
+
+        if let length = courseLengthLabel(from: record.courseLength) {
+            seeds.append(FeatureSeed(label: length, category: .length))
+        }
+
+        if let weather = record.weather?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !weather.isEmpty {
+            seeds.append(FeatureSeed(label: weather, category: .weather))
+        }
+
+        if let condition = record.trackCondition?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !condition.isEmpty {
+            seeds.append(FeatureSeed(label: condition, category: .trackCondition))
+        }
+
+        if let raceTime = record.raceTimeDetail?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !raceTime.isEmpty {
+            seeds.append(FeatureSeed(label: "\(raceTime)発走", category: .raceTime))
+        }
+
+        return seeds
+    }
+
+    private func betFeatureSeeds(for record: BetRecord) -> [FeatureSeed] {
+        var seeds: [FeatureSeed] = [
+            FeatureSeed(label: record.ticketType.rawValue, category: .ticketType),
+            FeatureSeed(label: "\(record.popularityBand.rawValue)狙い", category: .popularityBand),
+            FeatureSeed(label: record.raceGrade.rawValue, category: .raceGrade)
+        ]
+
+        if let horseSelection = horseSelectionLabel(from: record.horseNumber) {
+            seeds.append(FeatureSeed(label: horseSelection, category: .horseSelection))
+        }
+
+        if let jockey = record.jockeyName?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !jockey.isEmpty {
+            seeds.append(FeatureSeed(label: "\(jockey)騎手", category: .jockeyName))
+        }
+
+        if let horse = record.horseName?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !horse.isEmpty {
+            seeds.append(FeatureSeed(label: "\(horse)指名", category: .horseName))
+        }
+
+        return seeds
+    }
+
+    private func raceSegmentLabel(from text: String) -> String? {
+        guard let number = Int(text.trimmingCharacters(in: .whitespacesAndNewlines)) else { return nil }
+        switch number {
+        case 1...4:
+            return "序盤レース"
+        case 5...8:
+            return "中盤レース"
+        case 9...12:
+            return "後半レース"
+        default:
+            return nil
+        }
+    }
+
+    private func courseLengthLabel(from text: String?) -> String? {
+        guard let text else { return nil }
+        let digits = text.filter { $0.isNumber }
+        guard let length = Int(digits) else { return nil }
+        switch length {
+        case ...1400:
+            return "短距離"
+        case 1401...2000:
+            return "中距離"
+        default:
+            return "長距離"
+        }
+    }
+
+    private func horseSelectionLabel(from text: String?) -> String? {
+        guard let text = text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return nil }
+        let count = text.split(separator: "-").count
+        guard count > 0 else { return nil }
+        return "\(count)頭選び"
+    }
+
+    private func bestStat(in stats: [FeatureStat], categories: [FeatureCategory]) -> FeatureStat? {
+        stats
+            .filter { categories.contains($0.category) && $0.loss > 0 }
+            .sorted { lhs, rhs in
+                if lhs.loss == rhs.loss {
+                    return lhs.count > rhs.count
+                }
+                return lhs.loss > rhs.loss
+            }
+            .first
+    }
+
+    private func buildRaceDescriptor(from stats: [FeatureStat]) -> String {
+        let location = bestStat(in: stats, categories: [.racecourse])?.label
+        let timing = bestStat(in: stats, categories: [.raceSegment])?.label
+        let conditionStats = stats.filter {
+            [.surface, .direction, .length, .weather, .trackCondition, .raceTime].contains($0.category)
+        }
+        let topConditions = conditionStats
+            .filter { $0.loss > 0 }
+            .sorted { lhs, rhs in
+                if lhs.loss == rhs.loss {
+                    return lhs.count > rhs.count
+                }
+                return lhs.loss > rhs.loss
+            }
+            .prefix(2)
+            .map { $0.label }
+
+        var descriptor = [location, timing].compactMap { $0 }.joined(separator: "の")
+        if !descriptor.isEmpty {
+            if !topConditions.isEmpty {
+                let conditionText = topConditions.joined(separator: "・")
+                descriptor += "（\(conditionText)）"
+            }
+        } else if !topConditions.isEmpty {
+            let conditionText = topConditions.joined(separator: "・")
+            descriptor = "\(conditionText)のレース"
+        }
+
+        return descriptor
+    }
+
+    private func buildBetDescriptor(from stats: [FeatureStat]) -> String {
+        guard let ticket = bestStat(in: stats, categories: [.ticketType]) else { return "" }
+
+        let secondary = bestStat(
+            in: stats,
+            categories: [.popularityBand, .raceGrade, .horseSelection, .jockeyName, .horseName]
+        )
+
+        if let secondary {
+            switch secondary.category {
+            case .raceGrade:
+                return "\(ticket.label)で\(secondary.label)"
+            default:
+                return "\(ticket.label)の\(secondary.label)"
+            }
+        }
+
+        return "\(ticket.label)"
     }
 
     private var worstPattern: LossPattern? {
