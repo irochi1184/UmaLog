@@ -11,16 +11,20 @@ struct MemoEditorView: View {
     let isNew: Bool
 
     var body: some View {
-        Form {
-            Section {
-                TextField("タイトル", text: $memo.title)
-            }
+        VStack(alignment: .leading, spacing: 12) {
+            TextField("タイトル", text: $memo.title)
+                .font(.title3.weight(.semibold))
+                .padding(.top, 8)
 
-            Section("本文") {
-                TextEditor(text: $memo.body)
-                    .frame(minHeight: 220)
-            }
+            TextEditor(text: $memo.body)
+                .font(.body)
+                .scrollContentBackground(.hidden)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(Color(.systemBackground))
         .navigationTitle(isNew ? "メモを追加" : "メモを編集")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
