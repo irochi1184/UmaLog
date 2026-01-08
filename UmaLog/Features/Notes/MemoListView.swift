@@ -8,26 +8,37 @@ struct MemoListView: View {
     @State private var editingMemo: MemoNote?
 
     var body: some View {
-        List {
-            if memos.isEmpty {
-                ContentUnavailableView(
-                    "メモがまだありません",
-                    systemImage: "note.text",
-                    description: Text("プラスボタンから新しいメモを追加できます。")
-                )
-                .listRowBackground(Color.clear)
-            } else {
-                ForEach(memos) { memo in
-                    NavigationLink {
-                        MemoEditorView(memo: memo, isNew: false)
-                    } label: {
-                        MemoRow(memo: memo)
+        ZStack {
+            LinearGradient(
+                colors: [Color("MainGreen", bundle: .main).opacity(0.9), Color("MainGreen", bundle: .main).opacity(0.6)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            List {
+                if memos.isEmpty {
+                    ContentUnavailableView(
+                        "メモがまだありません",
+                        systemImage: "note.text",
+                        description: Text("プラスボタンから新しいメモを追加できます。")
+                    )
+                    .listRowBackground(Color(.secondarySystemBackground))
+                } else {
+                    ForEach(memos) { memo in
+                        NavigationLink {
+                            MemoEditorView(memo: memo, isNew: false)
+                        } label: {
+                            MemoRow(memo: memo)
+                        }
+                        .listRowBackground(Color(.secondarySystemBackground))
                     }
+                    .onDelete(perform: deleteMemo)
                 }
-                .onDelete(perform: deleteMemo)
             }
+            .scrollContentBackground(.hidden)
+            .listStyle(.insetGrouped)
         }
-        .listStyle(.insetGrouped)
         .navigationTitle("メモ帳")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
