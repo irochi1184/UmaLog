@@ -18,6 +18,8 @@ struct SettingsTabView: View {
     @AppStorage("showWeatherField") private var showWeatherField = false
     @AppStorage("showTrackConditionField") private var showTrackConditionField = false
     @AppStorage("showMemoField") private var showMemoField = false
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
 
     @State private var exportDocument: CSVDocument?
     @State private var isExportingBackup = false
@@ -26,16 +28,22 @@ struct SettingsTabView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     @State private var showingAlert = false
+    @State private var isShowingCustomColorPicker = false
+    @State private var customColor = ThemeColorPalette.color(from: ThemeColorPalette.defaultCustomHex)
 
     private var cardBackground: Color {
         Color(.secondarySystemBackground)
+    }
+
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
     }
 
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
                 LinearGradient(
-                    colors: [Color("MainGreen", bundle: .main).opacity(0.9), Color("MainGreen", bundle: .main).opacity(0.6)],
+                    colors: [mainColor.opacity(0.9), mainColor.opacity(0.6)],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -44,6 +52,7 @@ struct SettingsTabView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         header
+                        appearanceSection
                         modeSection
                         toggleSection
                         backupSection
@@ -78,6 +87,32 @@ struct SettingsTabView: View {
         } message: {
             Text(alertMessage)
         }
+        .sheet(isPresented: $isShowingCustomColorPicker) {
+            NavigationStack {
+                VStack(spacing: 24) {
+                    ColorPicker("カスタムカラー", selection: $customColor, supportsOpacity: false)
+                        .font(.headline)
+                        .padding(.vertical, 8)
+                }
+                .padding()
+                .navigationTitle("カスタムカラー")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("完了") {
+                            isShowingCustomColorPicker = false
+                        }
+                    }
+                }
+            }
+        }
+        .onAppear {
+            customColor = ThemeColorPalette.color(from: customThemeColorHex)
+        }
+        .onChange(of: customColor) { _, newValue in
+            if let hex = newValue.toHex() {
+                customThemeColorHex = hex
+            }
         .confirmationDialog("サンプルデータを入れますか？", isPresented: $isShowingSampleDataDialog, titleVisibility: .visible) {
             Button("入れる", role: .destructive) {
                 insertSampleData()
@@ -119,6 +154,51 @@ struct SettingsTabView: View {
                         prefersQuickEntry = false
                         applyDetailedPreset()
                     }
+                }
+            }
+            .padding()
+            .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
+        }
+    }
+
+    private var appearanceSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("画面デザイン")
+                .font(.headline)
+                .foregroundStyle(.white)
+
+            VStack(alignment: .leading, spacing: 12) {
+                Text("メインカラーを選ぶと、アプリ全体の雰囲気が変わります。")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                LazyVGrid(columns: colorGridColumns, spacing: 12) {
+                    ForEach(ThemeColorPalette.presets) { preset in
+                        Button {
+                            themeColorSelection = preset.id
+                        } label: {
+                            colorSwatch(
+                                color: ThemeColorPalette.color(from: preset.hex),
+                                title: preset.name,
+                                isSelected: themeColorSelection == preset.id,
+                                showsIcon: false
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    Button {
+                        themeColorSelection = ThemeColorPalette.customId
+                        isShowingCustomColorPicker = true
+                    } label: {
+                        colorSwatch(
+                            color: ThemeColorPalette.color(from: customThemeColorHex),
+                            title: "カスタムカラー",
+                            isSelected: themeColorSelection == ThemeColorPalette.customId,
+                            showsIcon: true
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             .padding()
@@ -195,11 +275,38 @@ struct SettingsTabView: View {
                 .font(.subheadline.weight(.semibold))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
-                .background(isSelected ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.systemGray5))
+                .background(isSelected ? mainColor.opacity(0.9) : Color(.systemGray5))
                 .foregroundStyle(isSelected ? .white : .primary)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
+    }
+
+    private var colorGridColumns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: 12), count: 3)
+    }
+
+    private func colorSwatch(color: Color, title: String, isSelected: Bool, showsIcon: Bool) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 14)
+                .fill(color)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(isSelected ? Color.white : Color.white.opacity(0.15), lineWidth: isSelected ? 3 : 1)
+                )
+
+            if showsIcon {
+                Image(systemName: "paintbrush.pointed")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.9))
+            } else if isSelected {
+                Image(systemName: "checkmark")
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(.white)
+            }
+        }
+        .frame(height: 72)
+        .accessibilityLabel(title)
     }
 
     private func toggleRow(title: String, isOn: Binding<Bool>) -> some View {

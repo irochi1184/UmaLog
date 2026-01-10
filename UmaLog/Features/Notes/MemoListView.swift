@@ -6,11 +6,17 @@ struct MemoListView: View {
     @Query(sort: \MemoNote.updatedAt, order: .reverse) private var memos: [MemoNote]
 
     @State private var editingMemo: MemoNote?
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
+
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
+    }
 
     var body: some View {
         ZStack {
             LinearGradient(
-                colors: [Color("MainGreen", bundle: .main).opacity(0.9), Color("MainGreen", bundle: .main).opacity(0.6)],
+                colors: [mainColor.opacity(0.9), mainColor.opacity(0.6)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )

@@ -22,6 +22,8 @@ struct CalendarTabView: View {
     @AppStorage("showWeatherField") private var showWeatherField = false
     @AppStorage("showTrackConditionField") private var showTrackConditionField = false
     @AppStorage("showMemoField") private var showMemoField = false
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
 
     private let dateLocale = Locale(identifier: "ja_JP")
 
@@ -35,11 +37,15 @@ struct CalendarTabView: View {
         Color(.secondarySystemBackground)
     }
 
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
+    }
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
                 LinearGradient(
-                    colors: [Color("MainGreen", bundle: .main).opacity(0.9), Color("MainGreen", bundle: .main).opacity(0.6)],
+                    colors: [mainColor.opacity(0.9), mainColor.opacity(0.6)],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -188,7 +194,7 @@ struct CalendarTabView: View {
         let background: Color
 
         if let net {
-            background = net > 0 ? Color("MainGreen", bundle: .main).opacity(0.15) : (net < 0 ? Color.red.opacity(0.15) : Color.gray.opacity(0.12))
+            background = net > 0 ? mainColor.opacity(0.15) : (net < 0 ? Color.red.opacity(0.15) : Color.gray.opacity(0.12))
         } else {
             background = Color(.systemGray6)
         }
@@ -210,7 +216,7 @@ struct CalendarTabView: View {
 
                         Text(AmountFormatting.currency(totals.payout))
                             .font(.caption2.weight(.semibold))
-                            .foregroundStyle(Color("MainGreen", bundle: .main))
+                            .foregroundStyle(mainColor)
                             .lineLimit(1)
                             .minimumScaleFactor(0.45)
                     }
@@ -529,7 +535,7 @@ private struct DailyRecordsSheet: View {
                         .font(.headline.weight(.semibold))
                 } icon: {
                     Image(systemName: "arrow.up.right.circle.fill")
-                        .foregroundStyle(Color("MainGreen", bundle: .main))
+                        .foregroundStyle(mainColor)
                 }
             }
             HStack(spacing: 12) {
@@ -585,7 +591,7 @@ private struct DailyRecordsSheet: View {
                                     Label(currency(record.investment), systemImage: "arrow.down.right")
                                         .foregroundStyle(.primary)
                                     Label(currency(record.payout), systemImage: "arrow.up.right")
-                                        .foregroundStyle(Color("MainGreen", bundle: .main))
+                                        .foregroundStyle(mainColor)
                                     Spacer()
                                     Text("回収率 \(record.returnRate, specifier: "%.0f")%")
                                         .font(.caption.weight(.semibold))
@@ -612,7 +618,7 @@ private struct DailyRecordsSheet: View {
 
     private var summaryNetColor: Color {
         if summaryNet == 0 { return .secondary }
-        return summaryNet > 0 ? Color("MainGreen", bundle: .main) : .red
+        return summaryNet > 0 ? mainColor : .red
     }
 
     private func recordTitle(for record: BetRecord) -> String {
