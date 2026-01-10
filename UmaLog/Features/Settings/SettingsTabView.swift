@@ -113,6 +113,7 @@ struct SettingsTabView: View {
             if let hex = newValue.toHex() {
                 customThemeColorHex = hex
             }
+        }
         .confirmationDialog("サンプルデータを入れますか？", isPresented: $isShowingSampleDataDialog, titleVisibility: .visible) {
             Button("入れる", role: .destructive) {
                 insertSampleData()
