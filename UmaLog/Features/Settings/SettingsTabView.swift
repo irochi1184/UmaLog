@@ -22,6 +22,7 @@ struct SettingsTabView: View {
     @State private var exportDocument: CSVDocument?
     @State private var isExportingBackup = false
     @State private var isImportingBackup = false
+    @State private var isShowingSampleDataDialog = false
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     @State private var showingAlert = false
@@ -78,6 +79,14 @@ struct SettingsTabView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(alertMessage)
+        }
+        .confirmationDialog("サンプルデータを入れますか？", isPresented: $isShowingSampleDataDialog, titleVisibility: .visible) {
+            Button("入れる", role: .destructive) {
+                insertSampleData()
+            }
+            Button("キャンセル", role: .cancel) {}
+        } message: {
+            Text("いまの記録はすべて置き換わります。")
         }
     }
 
@@ -189,6 +198,13 @@ struct SettingsTabView: View {
 
                     Button(action: { isImportingBackup = true }) {
                         Label("バックアップを復元", systemImage: "arrow.clockwise")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button(action: { isShowingSampleDataDialog = true }) {
+                        Label("サンプルデータを入れる（開発者用）", systemImage: "wand.and.stars")
                             .font(.subheadline.weight(.semibold))
                             .frame(maxWidth: .infinity)
                     }
@@ -318,6 +334,74 @@ struct SettingsTabView: View {
         let existingRecords = try modelContext.fetch(FetchDescriptor<BetRecord>())
         existingRecords.forEach { modelContext.delete($0) }
         newRecords.forEach { modelContext.insert($0) }
+    }
+
+    private func insertSampleData() {
+        let sampleRecords = generateSampleRecords(count: 300)
+        let csvText = makeCSVString(from: sampleRecords)
+        let rows = parseCSV(csvText)
+        let recordsToImport = rows.dropFirst().compactMap { record(from: $0) }
+        guard !recordsToImport.isEmpty else {
+            showAlert(title: "サンプルを作成できませんでした", message: "記録の生成に失敗しました。もう一度お試しください。")
+            return
+        }
+
+        do {
+            try replaceAllRecords(with: recordsToImport)
+            showAlert(title: "サンプルを入れました", message: "\(recordsToImport.count)件の記録を追加しました。")
+        } catch {
+            showAlert(title: "サンプルを作成できませんでした", message: "記録の置き換え中に問題が発生しました。")
+        }
+    }
+
+    private func generateSampleRecords(count: Int) -> [BetRecord] {
+        let racecourses = ["東京", "中山", "阪神", "京都", "札幌", "函館", "福島", "新潟", "中京", "小倉"]
+        let jockeys = ["佐藤騎手", "鈴木騎手", "高橋騎手", "田中騎手", "伊藤騎手", "山本騎手"]
+        let horses = ["サクラライト", "ミッドナイトスター", "ブルーフラッシュ", "ゴールドストーム", "スカイウィナー", "ブライトリーフ"]
+        let courseSurfaces = ["芝", "ダート"]
+        let courseDirections = ["右", "左", "直線"]
+        let courseLengths = ["1000", "1200", "1400", "1600", "1800", "2000", "2400", "3000"]
+        let weathers = ["晴れ", "くもり", "雨", "小雨", "晴れ時々くもり"]
+        let trackConditions = ["良", "稍重", "重", "不良"]
+        let memoSamples = ["序盤から押して勝負。", "気になる馬を試し買い。", "堅めの狙い。", "波乱狙いで挑戦。", "データ重視で選択。"]
+        let minutes = stride(from: 0, through: 55, by: 5).map { $0 }
+        let now = Date()
+
+        return (0..<count).map { _ in
+            let ticketType = TicketType.allCases.randomElement() ?? .win
+            let popularity = PopularityBand.allCases.randomElement() ?? .mid
+            let raceGrade = RaceGrade.allCases.randomElement() ?? .flat
+            let investment = Double(Int.random(in: 1...40) * 100)
+            let payout = Bool.random() ? Double(Int.random(in: 0...80) * 100) : 0
+            let raceNumber = String(Int.random(in: 1...12))
+            let horseNumber = String(Int.random(in: 1...18))
+            let hour = Int.random(in: 10...17)
+            let minute = minutes.randomElement() ?? 0
+            let raceTimeDetail = String(format: "%02d:%02d", hour, minute)
+            let randomOffset = TimeInterval(Double.random(in: 0...(60 * 60 * 24 * 180)))
+            let createdAt = now.addingTimeInterval(-randomOffset)
+
+            return BetRecord(
+                createdAt: createdAt,
+                ticketType: ticketType,
+                popularityBand: popularity,
+                raceGrade: raceGrade,
+                investment: investment,
+                payout: payout,
+                racecourse: racecourses.randomElement(),
+                raceNumber: raceNumber,
+                horseNumber: horseNumber,
+                jockeyName: jockeys.randomElement(),
+                horseName: horses.randomElement(),
+                raceTimeDetail: raceTimeDetail,
+                courseSurface: courseSurfaces.randomElement(),
+                courseDirection: courseDirections.randomElement(),
+                courseLength: courseLengths.randomElement(),
+                weather: weathers.randomElement(),
+                trackCondition: trackConditions.randomElement(),
+                memo: Bool.random() ? memoSamples.randomElement() : nil
+            )
+        }
     }
 
     private func showAlert(title: String, message: String) {
