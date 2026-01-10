@@ -23,14 +23,20 @@ struct RecordsTabView: View {
     @AppStorage("showWeatherField") private var showWeatherField = false
     @AppStorage("showTrackConditionField") private var showTrackConditionField = false
     @AppStorage("showMemoField") private var showMemoField = false
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
 
     private let datePickerLocale = Locale(identifier: "ja_JP")
+
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
+    }
 
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
                 LinearGradient(
-                    colors: [Color("MainGreen", bundle: .main).opacity(0.9), Color("MainGreen", bundle: .main).opacity(0.6)],
+                    colors: [mainColor.opacity(0.9), mainColor.opacity(0.6)],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -186,7 +192,7 @@ struct RecordsTabView: View {
 
     private var returnRateColor: Color {
         guard totalInvestment > 0 else { return .white }
-        return totalPayout >= totalInvestment ? Color("MainGreen", bundle: .main) : .red
+        return totalPayout >= totalInvestment ? mainColor : .red
     }
 
     private var totalInvestment: Double {

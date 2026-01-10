@@ -6,9 +6,15 @@ struct MemoEditorView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var isShowingDeleteConfirmation = false
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
 
     @Bindable var memo: MemoNote
     let isNew: Bool
+
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -52,7 +58,7 @@ struct MemoEditorView: View {
                         .font(.headline)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(Color("MainGreen", bundle: .main))
+                .tint(mainColor)
             }
         }
         .onChange(of: memo.title) { _, _ in

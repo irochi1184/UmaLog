@@ -131,6 +131,12 @@ struct RecordFormSection: View {
     let jockeySuggestions: [String]
     let horseSuggestions: [String]
     let onAdd: () -> Void
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
+
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -148,7 +154,7 @@ struct RecordFormSection: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
-                        .background(Color("MainGreen", bundle: .main).opacity(0.9))
+                        .background(mainColor.opacity(0.9))
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
@@ -201,19 +207,43 @@ struct RecordFormSection: View {
                 suggestionField(title: "馬名", placeholder: "例: ○○エース", text: $formState.horseName, suggestions: horseSuggestions)
             }
             if showCourseSurface {
-                toggleableSelectionButtons(title: "コース（任意・芝・ダートなど）", selection: $formState.courseSurface, options: CourseSurface.allCases, label: { $0.rawValue })
+                toggleableSelectionButtons(
+                    title: "コース（任意・芝・ダートなど）",
+                    selection: $formState.courseSurface,
+                    options: CourseSurface.allCases,
+                    label: { $0.rawValue },
+                    mainColor: mainColor
+                )
             }
             if showCourseDirection {
-                toggleableSelectionButtons(title: "コースの向き", selection: $formState.courseDirection, options: CourseDirection.allCases, label: { $0.rawValue })
+                toggleableSelectionButtons(
+                    title: "コースの向き",
+                    selection: $formState.courseDirection,
+                    options: CourseDirection.allCases,
+                    label: { $0.rawValue },
+                    mainColor: mainColor
+                )
             }
             if showCourseLength {
                 courseLengthField(title: "コースの長さ", text: $formState.courseLength)
             }
             if showWeather {
-                toggleableSelectionButtons(title: "天気", selection: $formState.weather, options: Weather.allCases, label: { $0.rawValue })
+                toggleableSelectionButtons(
+                    title: "天気",
+                    selection: $formState.weather,
+                    options: Weather.allCases,
+                    label: { $0.rawValue },
+                    mainColor: mainColor
+                )
             }
             if showTrackCondition {
-                toggleableSelectionButtons(title: "馬場状態", selection: $formState.trackCondition, options: TrackCondition.allCases, label: { $0.rawValue })
+                toggleableSelectionButtons(
+                    title: "馬場状態",
+                    selection: $formState.trackCondition,
+                    options: TrackCondition.allCases,
+                    label: { $0.rawValue },
+                    mainColor: mainColor
+                )
             }
             pickerRow(title: "レース格", selection: $formState.raceGrade, options: RaceGrade.allCases)
             if showMemo {
@@ -232,6 +262,12 @@ struct HistorySection: View {
     let currency: (Double) -> String
     let startEditing: (BetRecord) -> Void
     let onRequestDelete: (BetRecord) -> Void
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
+
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -273,7 +309,7 @@ struct HistorySection: View {
                                     Label(currency(record.investment), systemImage: "arrow.down.right")
                                         .foregroundStyle(.primary)
                                     Label(currency(record.payout), systemImage: "arrow.up.right")
-                                        .foregroundStyle(Color("MainGreen", bundle: .main))
+                                        .foregroundStyle(mainColor)
                                     Spacer()
                                     Text("回収率 \(record.returnRate, specifier: "%.0f")%")
                                         .font(.caption.weight(.semibold))
@@ -317,8 +353,14 @@ struct EditRecordSheet: View {
     let horseSuggestions: [String]
     let onSave: () -> Void
     let onDelete: (BetRecord) -> Void
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
 
     @State private var showDeleteConfirmation = false
+
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
+    }
 
     private var existingRacecourse: String {
         editState.record?.racecourse ?? ""
@@ -389,19 +431,43 @@ struct EditRecordSheet: View {
                                 suggestionField(title: "馬名", placeholder: "例: ○○エース", text: $editState.horseName, suggestions: horseSuggestions)
                             }
                             if showCourseSurface {
-                                toggleableSelectionButtons(title: "コース（任意・芝・ダートなど）", selection: $editState.courseSurface, options: CourseSurface.allCases, label: { $0.rawValue })
+                                toggleableSelectionButtons(
+                                    title: "コース（任意・芝・ダートなど）",
+                                    selection: $editState.courseSurface,
+                                    options: CourseSurface.allCases,
+                                    label: { $0.rawValue },
+                                    mainColor: mainColor
+                                )
                             }
                             if showCourseDirection {
-                                toggleableSelectionButtons(title: "コースの向き", selection: $editState.courseDirection, options: CourseDirection.allCases, label: { $0.rawValue })
+                                toggleableSelectionButtons(
+                                    title: "コースの向き",
+                                    selection: $editState.courseDirection,
+                                    options: CourseDirection.allCases,
+                                    label: { $0.rawValue },
+                                    mainColor: mainColor
+                                )
                             }
                             if showCourseLength || !existingCourseLength.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 courseLengthField(title: "コースの長さ", text: $editState.courseLength)
                             }
                             if showWeather {
-                                toggleableSelectionButtons(title: "天気", selection: $editState.weather, options: Weather.allCases, label: { $0.rawValue })
+                                toggleableSelectionButtons(
+                                    title: "天気",
+                                    selection: $editState.weather,
+                                    options: Weather.allCases,
+                                    label: { $0.rawValue },
+                                    mainColor: mainColor
+                                )
                             }
                             if showTrackCondition {
-                                toggleableSelectionButtons(title: "馬場状態", selection: $editState.trackCondition, options: TrackCondition.allCases, label: { $0.rawValue })
+                                toggleableSelectionButtons(
+                                    title: "馬場状態",
+                                    selection: $editState.trackCondition,
+                                    options: TrackCondition.allCases,
+                                    label: { $0.rawValue },
+                                    mainColor: mainColor
+                                )
                             }
                             pickerRow(title: "レース格", selection: $editState.raceGrade, options: RaceGrade.allCases)
                             if showMemo || !existingMemo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -566,7 +632,8 @@ private func toggleableSelectionButtons<Option: Identifiable & Hashable>(
     title: String,
     selection: Binding<Option?>,
     options: [Option],
-    label: @escaping (Option) -> String
+    label: @escaping (Option) -> String,
+    mainColor: Color
 ) -> some View {
     let columns: [GridItem] = [GridItem(.adaptive(minimum: 60), spacing: 8, alignment: .leading)]
 
@@ -589,11 +656,11 @@ private func toggleableSelectionButtons<Option: Identifiable & Hashable>(
                         .font(.system(size: 12, weight: .semibold, design: .rounded))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
-                        .background(isSelected ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
+                        .background(isSelected ? mainColor.opacity(0.9) : Color(.secondarySystemBackground))
                         .foregroundStyle(isSelected ? Color.white : Color.primary)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(isSelected ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
+                                .stroke(isSelected ? mainColor : Color(.separator), lineWidth: 1)
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
@@ -652,6 +719,12 @@ private struct MarkCardRaceNumberSelector: View {
     @Binding var selection: Int
 
     private let numbers: [Int] = Array(1...12)
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
+
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -671,11 +744,11 @@ private struct MarkCardRaceNumberSelector: View {
                                 .padding(.vertical, 5)
                                 .padding(.horizontal, 4)
                                 .frame(width: 22, height: 46)
-                                .background(selection == number ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
+                                .background(selection == number ? mainColor.opacity(0.9) : Color(.secondarySystemBackground))
                                 .foregroundStyle(selection == number ? Color.white : Color.primary)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .stroke(selection == number ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
+                                        .stroke(selection == number ? mainColor : Color(.separator), lineWidth: 1)
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
@@ -697,6 +770,12 @@ private struct MarkCardCourseSelector: View {
         .nakayama, .tokyo, .kyoto, .hanshin, .fukushima,
         .niigata, .chukyo, .kokura, .sapporo, .hakodate
     ]
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
+
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -719,11 +798,11 @@ private struct MarkCardCourseSelector: View {
                             .padding(.vertical, 5)
                             .padding(.horizontal, 4)
                             .frame(width: 24, height: 46)
-                            .background(selection == course ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
+                            .background(selection == course ? mainColor.opacity(0.9) : Color(.secondarySystemBackground))
                             .foregroundStyle(selection == course ? Color.white : Color.primary)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(selection == course ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
+                                    .stroke(selection == course ? mainColor : Color(.separator), lineWidth: 1)
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
@@ -746,6 +825,12 @@ private struct MarkCardHorseNumberSelector: View {
     @Binding var selection: [Int]
     let maxSelection: Int
     let isBracket: Bool
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
+
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
+    }
 
     private var firstRow: [Int] {
         isBracket ? Array(1...8) : Array(1...9)
@@ -788,17 +873,17 @@ private struct MarkCardHorseNumberSelector: View {
                                     .font(.system(size: 7, weight: .bold, design: .rounded))
                                     .padding(2)
                                     .background(Color.white.opacity(0.9))
-                                    .foregroundStyle(Color("MainGreen", bundle: .main))
+                                    .foregroundStyle(mainColor)
                                     .clipShape(Circle())
                                     .offset(x: 2, y: 0)
                             }
                         }
                         .frame(width: 22, height: 46)
-                        .background(isSelected(number: number, rowTag: rowTag) ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
+                        .background(isSelected(number: number, rowTag: rowTag) ? mainColor.opacity(0.9) : Color(.secondarySystemBackground))
                         .foregroundStyle(isSelected(number: number, rowTag: rowTag) ? Color.white : Color.primary)
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(isSelected(number: number, rowTag: rowTag) ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
+                                .stroke(isSelected(number: number, rowTag: rowTag) ? mainColor : Color(.separator), lineWidth: 1)
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
@@ -880,6 +965,12 @@ private struct MarkCardTicketTypeSelector: View {
     private let orderedTypes: [TicketType] = [
         .win, .place, .bracketQuinella, .quinella, .exacta, .wide, .trio, .trifecta
     ]
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
+
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -902,11 +993,11 @@ private struct MarkCardTicketTypeSelector: View {
                             .padding(.vertical, 5)
                             .padding(.horizontal, 4)
                             .frame(width: 24, height: 46)
-                            .background(selection == type ? Color("MainGreen", bundle: .main).opacity(0.9) : Color(.secondarySystemBackground))
+                            .background(selection == type ? mainColor.opacity(0.9) : Color(.secondarySystemBackground))
                             .foregroundStyle(selection == type ? Color.white : Color.primary)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(selection == type ? Color("MainGreen", bundle: .main) : Color(.separator), lineWidth: 1)
+                                    .stroke(selection == type ? mainColor : Color(.separator), lineWidth: 1)
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
