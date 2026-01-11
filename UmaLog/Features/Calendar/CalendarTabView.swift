@@ -437,9 +437,15 @@ private struct DailyRecordsSheet: View {
     let startEditing: (BetRecord) -> Void
     let startNewRecord: (Date) -> Void
     let dismiss: () -> Void
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
 
     private var dateLocale: Locale {
         calendar.locale ?? Locale(identifier: "ja_JP")
+    }
+    
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
     }
 
     private var titleFormatter: DateFormatter {

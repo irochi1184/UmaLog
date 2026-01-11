@@ -52,9 +52,9 @@ struct SettingsTabView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         header
-                        appearanceSection
                         modeSection
                         toggleSection
+                        appearanceSection
                         backupSection
                     }
                     .padding()
@@ -257,12 +257,12 @@ struct SettingsTabView: View {
                     }
                     .buttonStyle(.bordered)
 
-                    Button(action: { isShowingSampleDataDialog = true }) {
-                        Label("サンプルデータを入れる（開発者用）", systemImage: "wand.and.stars")
-                            .font(.subheadline.weight(.semibold))
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
+//                    Button(action: { isShowingSampleDataDialog = true }) {
+//                        Label("サンプルデータを入れる（開発者用）", systemImage: "wand.and.stars")
+//                            .font(.subheadline.weight(.semibold))
+//                            .frame(maxWidth: .infinity)
+//                    }
+//                    .buttonStyle(.bordered)
                 }
             }
             .padding()
