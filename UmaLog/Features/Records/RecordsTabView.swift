@@ -230,7 +230,6 @@ struct RecordsTabView: View {
     }
 
     private enum FeatureCategory: Hashable {
-        case racecourse
         case raceSegment
         case surface
         case direction
@@ -298,11 +297,6 @@ struct RecordsTabView: View {
 
     private func raceFeatureSeeds(for record: BetRecord) -> [FeatureSeed] {
         var seeds: [FeatureSeed] = []
-
-        if let racecourse = record.racecourse?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !racecourse.isEmpty {
-            seeds.append(FeatureSeed(label: "\(racecourse)競馬場", category: .racecourse))
-        }
 
         if let segment = raceSegmentLabel(from: record.raceNumberText) {
             seeds.append(FeatureSeed(label: segment, category: .raceSegment))
@@ -412,7 +406,6 @@ struct RecordsTabView: View {
     }
 
     private func buildRaceDescriptor(from stats: [FeatureStat]) -> String {
-        let location = bestStat(in: stats, categories: [.racecourse])?.label
         let timing = bestStat(in: stats, categories: [.raceSegment])?.label
         let conditionStats = stats.filter {
             [.surface, .direction, .length, .weather, .trackCondition, .raceTime].contains($0.category)
@@ -428,7 +421,7 @@ struct RecordsTabView: View {
             .prefix(2)
             .map { $0.label }
 
-        var descriptor = [location, timing].compactMap { $0 }.joined(separator: "の")
+        var descriptor = timing ?? ""
         if !descriptor.isEmpty {
             if !topConditions.isEmpty {
                 let conditionText = topConditions.joined(separator: "・")
