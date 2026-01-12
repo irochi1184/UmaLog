@@ -397,20 +397,8 @@ struct EditRecordSheet: View {
                             .opacity(0.7)
                     }
 
-                    VStack(alignment: .leading, spacing: 12) {
-                        MarkCardTicketTypeSelector(title: "式別（必須）", selection: $editState.ticketType)
-                    }
-
-                    HStack(spacing: 12) {
-                        amountField(title: "投資額", placeholder: "例: 1200", text: $editState.investmentText, focus: .editInvestment, focusedAmountField: $focusedAmountField)
-                        amountField(title: "払戻額", placeholder: "例: 800", text: $editState.payoutText, focus: .editPayout, focusedAmountField: $focusedAmountField)
-                    }
-
                     if hasDetailedFields {
-                        Divider()
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("詳細入力")
-                                .font(.subheadline.weight(.semibold))
                             if showRacecourse || !existingRacecourse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 MarkCardCourseSelector(title: "競馬場名", selection: $editState.racecourse)
                             }
@@ -474,6 +462,13 @@ struct EditRecordSheet: View {
                                 detailTextField(title: "ひと言メモ", placeholder: "例: スタートで出負け", text: $editState.memo)
                             }
                         }
+                    }
+
+                    Divider()
+
+                    HStack(spacing: 12) {
+                        amountField(title: "投資額", placeholder: "例: 1200", text: $editState.investmentText, focus: .editInvestment, focusedAmountField: $focusedAmountField)
+                        amountField(title: "払戻額", placeholder: "例: 800", text: $editState.payoutText, focus: .editPayout, focusedAmountField: $focusedAmountField)
                     }
                 }
                 .padding()
