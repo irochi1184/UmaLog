@@ -87,27 +87,9 @@ struct SettingsTabView: View {
         } message: {
             Text(alertMessage)
         }
-        .sheet(isPresented: $isShowingCustomColorPicker) {
-            NavigationStack {
-                VStack(spacing: 24) {
-                    ColorPicker("カスタムカラー", selection: $customColor, supportsOpacity: false)
-                        .font(.headline)
-                        .padding(.vertical, 8)
-                }
-                .padding()
-                .navigationTitle("カスタムカラー")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("完了") {
-                            isShowingCustomColorPicker = false
-                        }
-                    }
-                }
-            }
-        }
         .onAppear {
             customColor = ThemeColorPalette.color(from: customThemeColorHex)
+            isShowingCustomColorPicker = themeColorSelection == ThemeColorPalette.customId
         }
         .onChange(of: customColor) { _, newValue in
             if let hex = newValue.toHex() {
@@ -177,6 +159,7 @@ struct SettingsTabView: View {
                     ForEach(ThemeColorPalette.presets) { preset in
                         Button {
                             themeColorSelection = preset.id
+                            isShowingCustomColorPicker = false
                         } label: {
                             colorSwatch(
                                 color: ThemeColorPalette.color(from: preset.hex),
@@ -190,7 +173,9 @@ struct SettingsTabView: View {
 
                     Button {
                         themeColorSelection = ThemeColorPalette.customId
-                        isShowingCustomColorPicker = true
+                        withAnimation(.easeInOut) {
+                            isShowingCustomColorPicker = true
+                        }
                     } label: {
                         colorSwatch(
                             color: ThemeColorPalette.color(from: customThemeColorHex),
@@ -200,6 +185,13 @@ struct SettingsTabView: View {
                         )
                     }
                     .buttonStyle(.plain)
+                }
+
+                if isShowingCustomColorPicker {
+                    ColorPicker("カスタムカラー", selection: $customColor, supportsOpacity: false)
+                        .font(.headline)
+                        .padding(.top, 4)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
                 }
             }
             .padding()
