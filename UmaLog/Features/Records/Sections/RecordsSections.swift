@@ -478,6 +478,7 @@ struct EditRecordSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("閉じる") {
+                        dismissKeyboard()
                         editState.isPresented = false
                     }
                 }
@@ -497,6 +498,7 @@ struct EditRecordSheet: View {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
                     Button("閉じる") {
+                        dismissKeyboard()
                         focusedAmountField = nil
                     }
                 }

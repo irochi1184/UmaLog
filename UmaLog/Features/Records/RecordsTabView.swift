@@ -95,6 +95,7 @@ struct RecordsTabView: View {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
                     Button("閉じる") {
+                        dismissKeyboard()
                         focusedAmountField = nil
                     }
                 }
