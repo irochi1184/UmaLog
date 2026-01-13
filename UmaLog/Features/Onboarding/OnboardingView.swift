@@ -346,8 +346,3 @@ struct OnboardingView: View {
         showMemoField = true
     }
 }
-
-#Preview {
-    OnboardingView()
-        .modelContainer(previewContainer)
-}
