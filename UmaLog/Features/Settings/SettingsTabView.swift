@@ -56,6 +56,7 @@ struct SettingsTabView: View {
                         toggleSection
                         appearanceSection
                         backupSection
+                        legalSection
                     }
                     .padding()
                 }
@@ -308,6 +309,46 @@ struct SettingsTabView: View {
                 .font(.subheadline)
         }
         .toggleStyle(.switch)
+    }
+
+    private var legalSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("アプリについて")
+                .font(.headline)
+                .foregroundStyle(.white)
+
+            VStack(alignment: .leading, spacing: 12) {
+                NavigationLink {
+                    PrivacyPolicyView()
+                } label: {
+                    Label("プライバシーポリシー", systemImage: "lock.shield")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                NavigationLink {
+                    TermsOfServiceView()
+                } label: {
+                    Label("利用規約", systemImage: "doc.text")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                Text(appVersionText)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+            .padding()
+            .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
+        }
+    }
+
+    private var appVersionText: String {
+        let info = Bundle.main.infoDictionary
+        let shortVersion = info?["CFBundleShortVersionString"] as? String ?? "不明"
+        let build = info?["CFBundleVersion"] as? String ?? "不明"
+        return "バージョン \(shortVersion) (\(build))"
     }
 
     private func applyQuickPreset() {
