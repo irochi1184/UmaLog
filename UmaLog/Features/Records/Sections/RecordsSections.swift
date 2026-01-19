@@ -23,7 +23,7 @@ struct SummarySection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("今月のざっくりサマリー")
+            Text("総合成績")
                 .font(.headline)
                 .foregroundStyle(.white)
 
