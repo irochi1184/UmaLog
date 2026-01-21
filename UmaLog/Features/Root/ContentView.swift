@@ -16,6 +16,11 @@ struct ContentView: View {
                     Label("カレンダー", systemImage: "calendar")
                 }
 
+            AnalysisTabView(records: records)
+                .tabItem {
+                    Label("分析", systemImage: "chart.bar.xaxis")
+                }
+
             NavigationStack {
                 MemoListView()
             }
