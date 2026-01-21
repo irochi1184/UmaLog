@@ -312,6 +312,10 @@ struct AnalysisTabView: View {
         .sorted { $0.investmentValue > $1.investmentValue }
     }
 
+    private func percentageText(_ ratio: Double) -> String {
+        String(format: "%.0f%%", ratio * 100)
+    }
+
     private var cardBackground: Color {
         Color(.secondarySystemBackground)
     }
