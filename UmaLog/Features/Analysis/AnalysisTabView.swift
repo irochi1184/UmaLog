@@ -131,8 +131,15 @@ struct AnalysisTabView: View {
                 Text(entry.label)
                     .font(.subheadline)
                 Spacer()
-                Text(entry.formattedValue)
-                    .font(.subheadline)
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(entry.primaryText)
+                        .font(.subheadline)
+                    if !entry.secondaryText.isEmpty {
+                        Text(entry.secondaryText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
 
             GeometryReader { proxy in
@@ -254,8 +261,15 @@ struct AnalysisTabView: View {
     private var ticketTypeBreakdown: [ChartEntry] {
         let grouped = Dictionary(grouping: filteredRecords, by: \.ticketType)
         return grouped.map { key, items in
-            let total = items.reduce(0) { $0 + $1.investment }
-            return ChartEntry(label: key.rawValue, value: total, formattedValue: AmountFormatting.currency(total))
+            let investmentTotal = items.reduce(0) { $0 + $1.investment }
+            let payoutTotal = items.reduce(0) { $0 + $1.payout }
+            let ratio = totalInvestment > 0 ? investmentTotal / totalInvestment : 0
+            return ChartEntry(
+                label: key.rawValue,
+                value: ratio,
+                primaryText: "投資比率 \(percentageText(ratio))",
+                secondaryText: "回収額 \(AmountFormatting.currency(payoutTotal))"
+            )
         }
         .sorted { $0.value > $1.value }
     }
@@ -263,10 +277,21 @@ struct AnalysisTabView: View {
     private var gradePayoutBreakdown: [ChartEntry] {
         let grouped = Dictionary(grouping: filteredRecords, by: \.raceGrade)
         return grouped.map { key, items in
-            let total = items.reduce(0) { $0 + $1.payout }
-            return ChartEntry(label: key.rawValue, value: total, formattedValue: AmountFormatting.currency(total))
+            let payoutTotal = items.reduce(0) { $0 + $1.payout }
+            let investmentTotal = items.reduce(0) { $0 + $1.investment }
+            let ratio = totalInvestment > 0 ? investmentTotal / totalInvestment : 0
+            return ChartEntry(
+                label: key.rawValue,
+                value: payoutTotal,
+                primaryText: "回収額 \(AmountFormatting.currency(payoutTotal))",
+                secondaryText: "投資比率 \(percentageText(ratio))"
+            )
         }
         .sorted { $0.value > $1.value }
+    }
+
+    private func percentageText(_ ratio: Double) -> String {
+        String(format: "%.0f%%", ratio * 100)
     }
 
     private var cardBackground: Color {
@@ -288,5 +313,6 @@ private struct ChartEntry: Identifiable {
     let id = UUID()
     let label: String
     let value: Double
-    let formattedValue: String
+    let primaryText: String
+    let secondaryText: String
 }
