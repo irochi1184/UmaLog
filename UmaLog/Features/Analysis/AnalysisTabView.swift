@@ -290,8 +290,3 @@ private struct ChartEntry: Identifiable {
     let value: Double
     let formattedValue: String
 }
-
-#Preview {
-    AnalysisTabView(records: [])
-        .modelContainer(previewContainer)
-}
