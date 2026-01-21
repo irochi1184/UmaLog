@@ -114,8 +114,9 @@ struct AnalysisTabView: View {
                     .foregroundStyle(.secondary)
             } else {
                 VStack(spacing: 10) {
+                    let maxValue = data.map { max($0.investmentValue, $0.payoutValue) }.max() ?? 1
                     ForEach(data) { entry in
-                        analysisBar(entry: entry, maxValue: data.map(\.value).max() ?? 1)
+                        analysisBar(entry: entry, maxValue: maxValue)
                     }
                 }
             }
@@ -132,29 +133,50 @@ struct AnalysisTabView: View {
                     .font(.subheadline)
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text(entry.primaryText)
+                    Text(entry.investmentText)
                         .font(.subheadline)
-                    if !entry.secondaryText.isEmpty {
-                        Text(entry.secondaryText)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                    Text(entry.payoutText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
 
+            VStack(spacing: 6) {
+                barRow(
+                    label: "投資額",
+                    value: entry.investmentValue,
+                    maxValue: maxValue,
+                    barColor: .accentColor
+                )
+                barRow(
+                    label: "回収額",
+                    value: entry.payoutValue,
+                    maxValue: maxValue,
+                    barColor: .orange
+                )
+            }
+        }
+    }
+
+    private func barRow(label: String, value: Double, maxValue: Double, barColor: Color) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
             GeometryReader { proxy in
                 let width = proxy.size.width
-                let ratio = maxValue > 0 ? entry.value / maxValue : 0
+                let ratio = maxValue > 0 ? value / maxValue : 0
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.accentColor.opacity(0.25))
-                    .frame(height: 10)
+                    .fill(barColor.opacity(0.25))
+                    .frame(height: 8)
                     .overlay(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.accentColor)
-                            .frame(width: width * ratio, height: 10)
+                            .fill(barColor)
+                            .frame(width: width * ratio, height: 8)
                     }
             }
-            .frame(height: 10)
+            .frame(height: 8)
         }
     }
 
@@ -263,15 +285,15 @@ struct AnalysisTabView: View {
         return grouped.map { key, items in
             let investmentTotal = items.reduce(0) { $0 + $1.investment }
             let payoutTotal = items.reduce(0) { $0 + $1.payout }
-            let ratio = totalInvestment > 0 ? investmentTotal / totalInvestment : 0
             return ChartEntry(
                 label: key.rawValue,
-                value: ratio,
-                primaryText: "投資比率 \(percentageText(ratio))",
-                secondaryText: "回収額 \(AmountFormatting.currency(payoutTotal))"
+                investmentValue: investmentTotal,
+                payoutValue: payoutTotal,
+                investmentText: "投資額 \(AmountFormatting.currency(investmentTotal))",
+                payoutText: "回収額 \(AmountFormatting.currency(payoutTotal))"
             )
         }
-        .sorted { $0.value > $1.value }
+        .sorted { $0.investmentValue > $1.investmentValue }
     }
 
     private var gradePayoutBreakdown: [ChartEntry] {
@@ -279,15 +301,15 @@ struct AnalysisTabView: View {
         return grouped.map { key, items in
             let payoutTotal = items.reduce(0) { $0 + $1.payout }
             let investmentTotal = items.reduce(0) { $0 + $1.investment }
-            let ratio = totalInvestment > 0 ? investmentTotal / totalInvestment : 0
             return ChartEntry(
                 label: key.rawValue,
-                value: payoutTotal,
-                primaryText: "回収額 \(AmountFormatting.currency(payoutTotal))",
-                secondaryText: "投資比率 \(percentageText(ratio))"
+                investmentValue: investmentTotal,
+                payoutValue: payoutTotal,
+                investmentText: "投資額 \(AmountFormatting.currency(investmentTotal))",
+                payoutText: "回収額 \(AmountFormatting.currency(payoutTotal))"
             )
         }
-        .sorted { $0.value > $1.value }
+        .sorted { $0.investmentValue > $1.investmentValue }
     }
 
     private func percentageText(_ ratio: Double) -> String {
@@ -312,7 +334,8 @@ struct AnalysisTabView: View {
 private struct ChartEntry: Identifiable {
     let id = UUID()
     let label: String
-    let value: Double
-    let primaryText: String
-    let secondaryText: String
+    let investmentValue: Double
+    let payoutValue: Double
+    let investmentText: String
+    let payoutText: String
 }
