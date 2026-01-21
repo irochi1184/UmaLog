@@ -6,32 +6,44 @@ struct AnalysisTabView: View {
     @State private var startDate: Date = Calendar.autoupdatingCurrent.date(byAdding: .month, value: -1, to: .now) ?? .now
     @State private var endDate: Date = .now
     @State private var showingPaywall = false
+    @AppStorage("themeColorSelection") private var themeColorSelection = ThemeColorPalette.defaultSelectionId
+    @AppStorage("customThemeColorHex") private var customThemeColorHex = ThemeColorPalette.defaultCustomHex
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    dateFilterCard
-                    overviewCard
+            ZStack {
+                LinearGradient(
+                    colors: [mainColor.opacity(0.9), mainColor.opacity(0.6)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
 
-                    analysisSection(
-                        title: "券種別の投資比率",
-                        subtitle: "券種ごとの投資額を比べて、偏りを確認できます。",
-                        data: ticketTypeBreakdown
-                    )
+                ScrollView {
+                    VStack(spacing: 16) {
+                        dateFilterCard
+                        overviewCard
 
-                    analysisSection(
-                        title: "グレード別の回収額",
-                        subtitle: "レースの格ごとに払戻の傾向を整理します。",
-                        data: gradePayoutBreakdown
-                    )
+                        analysisSection(
+                            title: "券種別の投資比率",
+                            subtitle: "券種ごとの投資額を比べて、偏りを確認できます。",
+                            data: ticketTypeBreakdown
+                        )
 
-                    premiumSection
+                        analysisSection(
+                            title: "グレード別の回収額",
+                            subtitle: "レースの格ごとに払戻の傾向を整理します。",
+                            data: gradePayoutBreakdown
+                        )
+
+                        premiumSection
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 32)
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 32)
             }
             .navigationTitle("分析")
+            .navigationBarTitleDisplayMode(.inline)
         }
         .alert("有料プランで開放", isPresented: $showingPaywall) {
             Button("OK", role: .cancel) {}
@@ -259,6 +271,10 @@ struct AnalysisTabView: View {
 
     private var cardBackground: Color {
         Color(.secondarySystemBackground)
+    }
+
+    private var mainColor: Color {
+        ThemeColorPalette.color(for: themeColorSelection, customHex: customThemeColorHex)
     }
 
     private var calendar: Calendar {
