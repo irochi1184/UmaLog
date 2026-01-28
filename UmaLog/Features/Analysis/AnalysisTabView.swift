@@ -57,13 +57,27 @@ struct AnalysisTabView: View {
             Text("期間の絞り込み")
                 .font(.headline)
 
-            HStack(spacing: 12) {
-                DatePicker("開始", selection: $startDate, displayedComponents: .date)
+            HStack(spacing: 8) {
+                DatePicker("", selection: $startDate, displayedComponents: .date)
+                    .labelsHidden()
+                    .datePickerStyle(.compact)
+                    .environment(\.locale, Locale(identifier: "ja_JP"))
+                    .environment(\.calendar, calendar)
+                    .accessibilityLabel("開始日")
                     .onChange(of: startDate) { _, _ in
                         adjustDateRange()
                     }
 
-                DatePicker("終了", selection: $endDate, displayedComponents: .date)
+                Text("～")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                DatePicker("", selection: $endDate, displayedComponents: .date)
+                    .labelsHidden()
+                    .datePickerStyle(.compact)
+                    .environment(\.locale, Locale(identifier: "ja_JP"))
+                    .environment(\.calendar, calendar)
+                    .accessibilityLabel("終了日")
                     .onChange(of: endDate) { _, _ in
                         adjustDateRange()
                     }
