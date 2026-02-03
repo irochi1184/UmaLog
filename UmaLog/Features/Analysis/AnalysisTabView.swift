@@ -36,7 +36,7 @@ struct AnalysisTabView: View {
                             data: gradePayoutBreakdown
                         )
 
-                        premiumSection
+//                        premiumSection
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 32)

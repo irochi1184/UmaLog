@@ -1,18 +1,5 @@
 import SwiftUI
 
-struct RecordHeaderSection: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("負け方に気づく、静かな競馬ログ")
-                .font(.title2.bold())
-                .foregroundStyle(.white)
-            Text("感情の波で買っていないか、数字で振り返り。最小限の記録と一言分析で、続け方を整えます。")
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.9))
-        }
-    }
-}
-
 struct SummarySection: View {
     let returnRateText: String
     let returnRateColor: Color
@@ -81,34 +68,6 @@ struct SummarySection: View {
     }
 }
 
-struct AnalysisSection: View {
-    let pattern: LossPattern?
-    let cardBackground: Color
-
-    var body: some View {
-//        VStack(alignment: .leading, spacing: 12) {
-//            Text("今日の気づき")
-//                .font(.headline)
-//                .foregroundStyle(.white)
-//
-//            if let pattern {
-//                VStack(alignment: .leading, spacing: 8) {
-//                    Text(pattern.message)
-//                        .font(.title3.weight(.semibold))
-//                        .foregroundStyle(.primary)
-//                    Text("同じ買い方で \(pattern.count) 件記録。回収率 \(pattern.returnRateString)。")
-//                        .font(.subheadline)
-//                        .foregroundStyle(.secondary)
-//                }
-//                .padding()
-//                .background(cardBackground, in: RoundedRectangle(cornerRadius: 16))
-//            } else {
-//                placeholderCard(text: "まだ記録がありません。まずは1レース、30秒で記録してみましょう。")
-//            }
-//        }
-    }
-}
-
 struct RecordFormSection: View {
     @Binding var formState: RecordFormState
     let isValidInput: Bool
@@ -140,7 +99,7 @@ struct RecordFormSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("さくっと記録")
+            Text("記録")
                 .font(.headline)
                 .foregroundStyle(.white)
 

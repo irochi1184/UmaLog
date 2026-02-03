@@ -53,7 +53,6 @@ struct CalendarTabView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        calendarHeader
                         calendarSection
                     }
                     .padding()
@@ -98,17 +97,6 @@ struct CalendarTabView: View {
                     dismiss: { self.selectedDate = nil }
                 )
             }
-        }
-    }
-
-    private var calendarHeader: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("日ごとの浮き沈みを色でひと目に")
-                .font(.title2.bold())
-                .foregroundStyle(.white)
-            Text("記録した日付をカレンダーで振り返り。プラスの日は緑、マイナスの日は赤で表示します。")
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.9))
         }
     }
 

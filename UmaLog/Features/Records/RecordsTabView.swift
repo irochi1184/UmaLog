@@ -44,7 +44,6 @@ struct RecordsTabView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        RecordHeaderSection()
                         SummarySection(
                             returnRateText: returnRateText,
                             returnRateColor: returnRateColor,
@@ -53,7 +52,6 @@ struct RecordsTabView: View {
                             totalPayout: AmountFormatting.currency(totalPayout),
                             analysisText: lossInsightText
                         )
-                        AnalysisSection(pattern: worstPattern, cardBackground: cardBackground)
                         RecordFormSection(
                             formState: $formState,
                             isValidInput: isValidInput,

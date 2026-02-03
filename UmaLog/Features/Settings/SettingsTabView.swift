@@ -51,7 +51,6 @@ struct SettingsTabView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        header
                         modeSection
                         toggleSection
                         appearanceSection
@@ -104,17 +103,6 @@ struct SettingsTabView: View {
             Button("キャンセル", role: .cancel) {}
         } message: {
             Text("いまの記録はすべて置き換わります。")
-        }
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("入力スタイルの設定")
-                .font(.title2.bold())
-                .foregroundStyle(.white)
-            Text("サクッと記録か、がっつり記録か。表示する項目をここで切り替えられます。")
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.9))
         }
     }
 
