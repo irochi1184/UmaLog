@@ -85,6 +85,7 @@ struct AnalysisTabView: View {
             .font(.subheadline)
         }
         .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
@@ -109,6 +110,7 @@ struct AnalysisTabView: View {
                 .foregroundStyle(.secondary)
         }
         .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
@@ -136,6 +138,7 @@ struct AnalysisTabView: View {
             }
         }
         .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
@@ -214,6 +217,7 @@ struct AnalysisTabView: View {
             )
         }
         .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
