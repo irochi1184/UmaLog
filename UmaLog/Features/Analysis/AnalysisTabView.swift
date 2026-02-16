@@ -24,11 +24,7 @@ struct AnalysisTabView: View {
                         dateFilterCard
                         overviewCard
 
-                        analysisSection(
-                            title: "券種別の投資比率",
-                            subtitle: "券種ごとの投資額を比べて、偏りを確認できます。",
-                            data: ticketTypeBreakdown
-                        )
+                        ticketTypePieSection
 
                         analysisSection(
                             title: "グレード別の回収額",
@@ -115,6 +111,49 @@ struct AnalysisTabView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
+    private var ticketTypePieSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("券種別の傾向")
+                .font(.headline)
+
+            Text("購入割合と回収額の内訳を円グラフで確認できます。")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            if ticketTypePieEntries.isEmpty {
+                Text("対象期間の記録がありません。")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else {
+                HStack(spacing: 12) {
+                    pieChartCard(
+                        title: "購入割合",
+                        total: totalInvestment,
+                        totalLabel: "総投資額",
+                        value: \.investmentValue
+                    )
+
+                    pieChartCard(
+                        title: "回収金額",
+                        total: totalPayout,
+                        totalLabel: "総回収額",
+                        value: \.payoutValue
+                    )
+                }
+
+                VStack(spacing: 10) {
+                    ForEach(Array(ticketTypePieEntries.enumerated()), id: \.element.id) { index, entry in
+                        legendRow(entry: entry, color: pieColor(for: index))
+                    }
+                }
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
     private func analysisSection(title: String, subtitle: String, data: [ChartEntry]) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
@@ -171,6 +210,68 @@ struct AnalysisTabView: View {
                     maxValue: maxValue,
                     barColor: .orange
                 )
+            }
+        }
+    }
+
+    private func pieChartCard(
+        title: String,
+        total: Double,
+        totalLabel: String,
+        value: KeyPath<PieChartEntry, Double>
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            PieChartView(entries: ticketTypePieEntries, total: total, value: value, colors: pieColors)
+                .frame(height: 140)
+
+            Text(totalLabel)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
+            Text(AmountFormatting.currency(total))
+                .font(.subheadline)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.secondary.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private func legendRow(entry: PieChartEntry, color: Color) -> some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(color)
+                    .frame(width: 10, height: 10)
+
+                Text(entry.label)
+                    .font(.subheadline)
+
+                Spacer()
+
+                Text(percentageText(entry.investmentRatio))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            HStack {
+                Text("投資")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(AmountFormatting.currency(entry.investmentValue))
+                    .font(.caption)
+
+                Spacer()
+
+                Text("回収")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(AmountFormatting.currency(entry.payoutValue))
+                    .font(.caption)
             }
         }
     }
@@ -298,17 +399,17 @@ struct AnalysisTabView: View {
         return String(format: "%.0f%%", (totalPayout / totalInvestment) * 100)
     }
 
-    private var ticketTypeBreakdown: [ChartEntry] {
+    private var ticketTypePieEntries: [PieChartEntry] {
         let grouped = Dictionary(grouping: filteredRecords, by: \.ticketType)
         return grouped.map { key, items in
             let investmentTotal = items.reduce(0) { $0 + $1.investment }
             let payoutTotal = items.reduce(0) { $0 + $1.payout }
-            return ChartEntry(
+            let investmentRatio = totalInvestment > 0 ? investmentTotal / totalInvestment : 0
+            return PieChartEntry(
                 label: key.rawValue,
                 investmentValue: investmentTotal,
                 payoutValue: payoutTotal,
-                investmentText: "投資額 \(AmountFormatting.currency(investmentTotal))",
-                payoutText: "回収額 \(AmountFormatting.currency(payoutTotal))"
+                investmentRatio: investmentRatio
             )
         }
         .sorted { $0.investmentValue > $1.investmentValue }
@@ -334,6 +435,23 @@ struct AnalysisTabView: View {
         String(format: "%.0f%%", ratio * 100)
     }
 
+    private var pieColors: [Color] {
+        [
+            .accentColor,
+            .orange,
+            .purple,
+            .mint,
+            .pink,
+            .blue,
+            .teal,
+            .indigo
+        ]
+    }
+
+    private func pieColor(for index: Int) -> Color {
+        pieColors[index % pieColors.count]
+    }
+
     private var cardBackground: Color {
         Color(.secondarySystemBackground)
     }
@@ -356,4 +474,77 @@ private struct ChartEntry: Identifiable {
     let payoutValue: Double
     let investmentText: String
     let payoutText: String
+}
+
+private struct PieChartEntry: Identifiable {
+    let id = UUID()
+    let label: String
+    let investmentValue: Double
+    let payoutValue: Double
+    let investmentRatio: Double
+}
+
+private struct PieChartView: View {
+    let entries: [PieChartEntry]
+    let total: Double
+    let value: KeyPath<PieChartEntry, Double>
+    let colors: [Color]
+
+    var body: some View {
+        GeometryReader { proxy in
+            let size = min(proxy.size.width, proxy.size.height)
+
+            ZStack {
+                if total > 0 {
+                    ForEach(Array(entries.enumerated()), id: \.element.id) { index, _ in
+                        PieSlice(
+                            startAngle: startAngle(at: index),
+                            endAngle: endAngle(at: index)
+                        )
+                        .fill(colors[index % colors.count])
+                    }
+                } else {
+                    Circle()
+                        .fill(Color.secondary.opacity(0.15))
+                }
+
+                Circle()
+                    .fill(Color(.systemBackground))
+                    .frame(width: size * 0.52, height: size * 0.52)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private func startAngle(at index: Int) -> Angle {
+        let previous = entries.prefix(index).reduce(0) { $0 + $1[keyPath: value] }
+        return .degrees((previous / total) * 360 - 90)
+    }
+
+    private func endAngle(at index: Int) -> Angle {
+        let current = entries.prefix(index + 1).reduce(0) { $0 + $1[keyPath: value] }
+        return .degrees((current / total) * 360 - 90)
+    }
+}
+
+private struct PieSlice: Shape {
+    let startAngle: Angle
+    let endAngle: Angle
+
+    func path(in rect: CGRect) -> Path {
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let radius = min(rect.width, rect.height) / 2
+
+        var path = Path()
+        path.move(to: center)
+        path.addArc(
+            center: center,
+            radius: radius,
+            startAngle: startAngle,
+            endAngle: endAngle,
+            clockwise: false
+        )
+        path.closeSubpath()
+        return path
+    }
 }
